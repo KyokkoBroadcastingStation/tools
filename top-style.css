@@ -1,11 +1,14 @@
 ul{
     display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    margin: 20px auto;
+    width: 70%;
 }
 li{
-    width: 35%;
+    width: 90%;
     list-style: none;
     border: 1px solid ;
     margin: 5px;
-    padding: 5px;
+    padding: 10px;
     border-radius: 5px;
 }
