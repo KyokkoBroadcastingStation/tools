@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style/main-style.css" />
+    <title>スタッフ証ジェネレーター</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        min-height: 100vh;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .container {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0px 0px 10px 0px rgba(59, 59, 59, 0.4);
+        overflow: hidden;
+        max-width: 1600px;
+        width: 100%;
+        display: grid;
+        grid-template-columns: 450px 1fr 400px;
+        gap: 0;
+        min-height: 800px;
+        margin: 5vh auto;
+      }
+
+      .input-section {
+        padding: 40px;
+        background: #f8f9ff;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        max-height: 90vh;
+        overflow-y: auto;
+      }
+
+      .preview-section {
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #ffffff;
+        overflow-y: auto;
+        max-height: 90vh;
+      }
+
+      .current-preview-section {
+        padding: 30px;
+        background: #f8f9ff;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        max-height: 90vh;
+        overflow-y: auto;
+      }
+
+      .preview-title {
+        color: #333;
+        margin-bottom: 25px;
+        font-size: 20px;
+        font-weight: 600;
+        text-align: center;
+      }
+
+      .container-title {
+        color: #333;
+        margin-bottom: 30px;
+        font-size: 28px;
+        font-weight: 700;
+        text-align: center;
+      }
+
+      .form-group {
+        margin-bottom: 25px;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 8px;
+        color: #555;
+        font-weight: 600;
+        font-size: 14px;
+      }
+
+      input {
+        width: 100%;
+        padding: 15px;
+        border: 2px solid #e1e5e9;
+        border-radius: 10px;
+        font-size: 16px;
+        transition: all 0.3s ease;
+        background: white;
+      }
+
+      input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        transform: translateY(-2px);
+      }
+
+      .current-person {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        padding: 15px 20px;
+        border-radius: 10px;
+        margin-bottom: 25px;
+        text-align: center;
+        font-weight: 600;
+        font-size: 16px;
+      }
+
+      .person-list {
+        background: #f0f4f8;
+        padding: 25px;
+        border-radius: 12px;
+        margin-bottom: 25px;
+        max-height: 350px;
+        overflow-y: auto;
+      }
+
+      .person-list h3 {
+        margin-bottom: 15px;
+        color: #333;
+        font-size: 18px;
+      }
+
+      .person-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 18px 20px;
+        background: white;
+        border-radius: 10px;
+        margin-bottom: 15px;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+        transition: transform 0.2s ease;
+      }
+
+      .person-item:hover {
+        transform: translateY(-2px);
+      }
+
+      .person-item:last-child {
+        margin-bottom: 0;
+      }
+
+      .person-name {
+        font-weight: 700;
+        color: #333;
+        font-size: 18px;
+        margin-bottom: 5px;
+      }
+
+      .person-details {
+        color: #666;
+        font-size: 15px;
+        line-height: 1.3;
+      }
+
+      .delete-btn {
+        background: #dc3545;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        padding: 8px 12px;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 600;
+        transition: background-color 0.2s ease;
+      }
+
+      .delete-btn:hover {
+        background: #c82333;
+      }
+
+      /* ボタンスタイル */
+      .add-btn, .download-btn, .reset-btn {
+        width: 100%;
+        margin-top: 15px;
+        padding: 18px 25px;
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      .add-btn {
+        background: linear-gradient(135deg, #28a745, #20c997);
+      }
+
+      .download-btn {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+      }
+
+      .reset-btn {
+        background: linear-gradient(135deg, #dc3545, #c82333);
+        margin-bottom: 20px;
+      }
+
+      .add-btn:hover, .download-btn:hover, .reset-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+      }
+
+      .add-btn:hover {
+        box-shadow: 0 10px 25px rgba(40, 167, 69, 0.3);
+      }
+
+      .reset-btn:hover {
+        box-shadow: 0 10px 25px rgba(220, 53, 69, 0.3);
+      }
+
+      /* A4印刷用スタイル */
+      .a4-container {
+        width: 210mm;
+        height: 297mm;
+        background: white;
+        position: relative;
+        margin: 0 auto;
+        border: 2px dashed #999;
+      }
+
+      .card-grid {
+        position: absolute;
+        top: 11mm;
+        left: 14mm;
+        width: 182mm;
+        height: 275mm;
+        display: grid;
+        grid-template-columns: 91mm 91mm;
+        grid-template-rows: repeat(5, 55mm);
+      }
+
+      .card-slot {
+        position: relative;
+        width: 91mm;
+        height: 55mm;
+        border-right: 1px dashed #999;
+        border-bottom: 1px dashed #999;
+      }
+
+      /* 右端の列は右ボーダーなし */
+      .card-slot:nth-child(even) {
+        border-right: none;
+      }
+      
+      /* 最下段は下ボーダーなし */
+      .card-slot:nth-child(9), .card-slot:nth-child(10) {
+        border-bottom: none;
+      }
+
+      .business-card {
+        width: 91mm;
+        height: 55mm;
+        background: white;
+        border-radius: 2mm;
+        padding: 2.5mm 5mm;
+        color: #333;
+        position: relative;
+        overflow: hidden;
+        font-family: 'Arial', sans-serif;
+      }
+
+      .card-content {
+        position: relative;
+        z-index: 2;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .company-name {
+        font-size: 4mm;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 5mm;
+        letter-spacing: 0.2mm;
+      }
+
+      .card-main {
+        border-left: 0.5mm solid #333;
+        margin-top: 2.5mm;
+      }
+
+      .card-position,
+      .card-grade {
+        font-size: 2.8mm;
+        color: #333;
+        margin-bottom: 0;
+        padding-left: 2mm;
+      }
+
+      .card-name {
+        font-size: 10mm;
+        font-weight: 700;
+        margin-bottom: 0;
+        color: #333;
+        letter-spacing: 0.5mm;
+        padding-left: 1.5mm;
+        line-height: 1.1;
+      }
+
+      .card-reading {
+        font-size: 2.5mm;
+        color: #666;
+        margin-bottom: 1.5mm;
+        padding-left: 2mm;
+      }
+
+      .card-slogan {
+        position: absolute;
+        bottom: 6mm;
+        right: 6mm;
+        font-size: 2.8mm;
+        color: #999;
+        font-weight: 300;
+      }
+
+      .card-logo {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        margin-right: -7mm;
+        width: 35%;
+        height: 15mm;
+        background: #333;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 3mm;
+        border: none !important;
+        outline: none !important;
+      }
+
+      .card-logo img {
+        border: none !important;
+        outline: none !important;
+        max-width: 100%;
+        max-height: 100%;
+      }
+
+      .empty-card {
+        background: #f8f9fa;
+        border: 1px dashed #ccc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #aaa;
+        font-size: 3mm;
+      }
+
+      /* プレビュー用の名刺スタイル */
+      .preview-business-card {
+        width: 320px;
+        height: 190px;
+        background: white;
+        border-radius: 12px;
+        padding: 12px 20px;
+        color: #333;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 20px;
+      }
+
+      .preview-business-card .card-content {
+        position: relative;
+        z-index: 2;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .preview-business-card .company-name {
+        font-size: 16px;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 18px;
+        letter-spacing: 1px;
+      }
+
+      .preview-business-card .card-main {
+        border-left: 2px solid #333;
+        margin-top: 10px;
+      }
+
+      .preview-business-card .card-position,
+      .preview-business-card .card-grade {
+        font-size: 11px;
+        color: #333;
+        margin-bottom: 0;
+        padding-left: 8px;
+      }
+
+      .preview-business-card .card-name {
+        font-size: 36px;
+        font-weight: 700;
+        margin-bottom: 0;
+        color: #333;
+        letter-spacing: 2px;
+        padding-left: 6px;
+        line-height: 1.1;
+      }
+
+      .preview-business-card .card-reading {
+        font-size: 10px;
+        color: #666;
+        margin-bottom: 5px;
+        padding-left: 8px;
+      }
+
+      .preview-business-card .card-logo {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        margin-right: -25px;
+        width: 35%;
+        height: 50px;
+        background: #333;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        border: none !important;
+        outline: none !important;
+      }
+
+      .preview-business-card .card-logo img {
+        border: none !important;
+        outline: none !important;
+        max-width: 100%;
+        max-height: 100%;
+      }
+
+      @media print {
+        body * {
+          visibility: hidden;
+        }
+        
+        .a4-container, .a4-container * {
+          visibility: visible;
+        }
+        
+        .a4-container {
+          position: absolute;
+          left: 0;
+          top: 0;
+          width: 210mm !important;
+          height: 297mm !important;
+          margin: 0 !important;
+          padding: 0 !important;
+        }
+        
+        @page {
+          size: A4;
+          margin: 0;
+        }
+      }
+
+      @media (max-width: 1400px) {
+        .container {
+          grid-template-columns: 1fr;
+          max-width: 900px;
+        }
+        
+        .current-preview-section {
+          order: 2;
+        }
+        
+        .preview-section {
+          order: 3;
+        }
+        
+        .a4-container {
+          width: 100%;
+          height: auto;
+          transform: scale(0.5);
+          transform-origin: top center;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <a href="/tools">
+        <h1>KBS情報通信ネットワーク</h1>
+      </a>
+    </header>
+    
+    <div class="container">
+      <div class="input-section">
+        <h1 class="container-title">スタッフ証ジェネレーター</h1>
+        
+        <div class="current-person">
+          登録人数: <span id="personCount">0</span>/10
+        </div>
+
+        <form id="cardForm">
+          <div class="form-group">
+            <label for="name">名前</label>
+            <input type="text" id="name" placeholder="例：山田 太郎" />
+          </div>
+
+          <div class="form-group">
+            <label for="reading">読み仮名</label>
+            <input type="text" id="reading" placeholder="例：Tarou Yamada" />
+          </div>
+
+          <div class="form-group">
+            <label for="position">役職</label>
+            <input type="text" id="position" placeholder="例：局長" />
+          </div>
+
+          <div class="form-group">
+            <label for="grade">学年・学科</label>
+            <input type="text" id="grade" placeholder="例：4年生自動車科" />
+          </div>
+
+          <button type="button" class="add-btn" onclick="addPerson()">
+            スタッフを追加
+          </button>
+
+          <button type="button" class="reset-btn" onclick="resetAll()">
+            すべてリセット
+          </button>
+
+          <button type="button" class="download-btn" onclick="downloadA4PDF()">
+            A4でPDFダウンロード
+          </button>
+        </form>
+      </div>
+
+      <div class="preview-section">
+        <div class="a4-container" id="a4Container">
+          <div class="card-grid" id="cardGrid">
+            <!-- 10個のカードスロット -->
+          </div>
+        </div>
+      </div>
+
+      <div class="current-preview-section">
+        <h2 class="preview-title">入力中プレビュー</h2>
+        <div class="preview-business-card" id="currentPreview">
+          <div class="card-content">
+            <div class="company-name">KBS 旭工放送局</div>
+            <div class="card-main">
+              <div class="card-position" id="currentPreviewPosition">局長</div>
+              <div class="card-grade" id="currentPreviewGrade">4年自動車科</div>
+              <div class="card-name" id="currentPreviewName">山田 太郎</div>
+              <div class="card-reading" id="currentPreviewReading">Tarou Yamada</div>
+            </div>
+            <img class="card-logo" src="img/logo.png" />
+          </div>
+        </div>
+                <div class="person-list" id="personList" style="display: none;">
+          <h3>登録済みスタッフ</h3>
+          <div id="personItems"></div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let staffList = [];
+      
+      // 初期化
+      function init() {
+        generateCardSlots();
+        updateDisplay();
+        updateCurrentPreview();
+        
+        // 入力フィールドにイベントリスナーを追加
+        document.getElementById('name').addEventListener('input', updateCurrentPreview);
+        document.getElementById('reading').addEventListener('input', updateCurrentPreview);
+        document.getElementById('position').addEventListener('input', updateCurrentPreview);
+        document.getElementById('grade').addEventListener('input', updateCurrentPreview);
+      }
+
+      // カードスロットを生成
+      function generateCardSlots() {
+        const cardGrid = document.getElementById('cardGrid');
+        cardGrid.innerHTML = '';
+        
+        for (let i = 0; i < 10; i++) {
+          const slot = document.createElement('div');
+          slot.className = 'card-slot';
+          slot.id = `slot-${i}`;
+          cardGrid.appendChild(slot);
+        }
+      }
+
+      // スタッフを追加
+      function addPerson() {
+        if (staffList.length >= 10) {
+          alert('最大10人まで登録できます。');
+          return;
+        }
+
+        const name = document.getElementById('name').value.trim();
+        const reading = document.getElementById('reading').value.trim();
+        const position = document.getElementById('position').value.trim();
+        const grade = document.getElementById('grade').value.trim();
+
+        if (!name || !reading || !position || !grade) {
+          alert('すべての項目を入力してください。');
+          return;
+        }
+
+        const staff = {
+          id: Date.now(),
+          name: name,
+          reading: reading,
+          position: position,
+          grade: grade
+        };
+
+        staffList.push(staff);
+        clearForm();
+        updateDisplay();
+      }
+
+      // スタッフを削除
+      function deletePerson(id) {
+        staffList = staffList.filter(staff => staff.id !== id);
+        updateDisplay();
+      }
+
+      // フォームをクリア
+      function clearForm() {
+        document.getElementById('name').value = '';
+        document.getElementById('reading').value = '';
+        document.getElementById('position').value = '';
+        document.getElementById('grade').value = '';
+        updateCurrentPreview();
+      }
+
+      // 現在の入力プレビューを更新
+      function updateCurrentPreview() {
+        const name = document.getElementById('name').value || '山田 太郎';
+        const reading = document.getElementById('reading').value || 'Tarou Yamada';
+        const position = document.getElementById('position').value || '局長';
+        const grade = document.getElementById('grade').value || '4年自動車科';
+
+        document.getElementById('currentPreviewName').textContent = name;
+        document.getElementById('currentPreviewReading').textContent = reading;
+        document.getElementById('currentPreviewPosition').textContent = position;
+        document.getElementById('currentPreviewGrade').textContent = grade;
+      }
+
+      // すべてリセット
+      function resetAll() {
+        staffList = [];
+        clearForm();
+        updateDisplay();
+      }
+
+      // 表示を更新
+      function updateDisplay() {
+        updatePersonCount();
+        updatePersonList();
+        updateCardGrid();
+      }
+
+      // 人数表示を更新
+      function updatePersonCount() {
+        document.getElementById('personCount').textContent = staffList.length;
+      }
+
+      // スタッフリスト表示を更新
+      function updatePersonList() {
+        const personList = document.getElementById('personList');
+        const personItems = document.getElementById('personItems');
+        
+        if (staffList.length === 0) {
+          personList.style.display = 'none';
+          return;
+        }
+
+        personList.style.display = 'block';
+        personItems.innerHTML = '';
+
+        staffList.forEach(staff => {
+          const item = document.createElement('div');
+          item.className = 'person-item';
+          item.innerHTML = `
+            <div>
+              <div class="person-name">${staff.name}</div>
+              <div class="person-details">${staff.position} - ${staff.grade}</div>
+            </div>
+            <button class="delete-btn" onclick="deletePerson(${staff.id})">削除</button>
+          `;
+          personItems.appendChild(item);
+        });
+      }
+
+      // カードグリッドを更新
+      function updateCardGrid() {
+        for (let i = 0; i < 10; i++) {
+          const slot = document.getElementById(`slot-${i}`);
+          
+          if (i < staffList.length) {
+            const staff = staffList[i];
+            slot.innerHTML = createBusinessCard(staff);
+          } else {
+            slot.innerHTML = '<div class="empty-card">空きスロット</div>';
+          }
+        }
+      }
+
+      // 名刺HTMLを生成
+      function createBusinessCard(staff) {
+        return `
+          <div class="business-card">
+            <div class="card-content">
+              <div class="company-name">KBS 旭工放送局</div>
+              <div class="card-main">
+                <div class="card-position">${staff.position}</div>
+                <div class="card-grade">${staff.grade}</div>
+                <div class="card-name">${staff.name}</div>
+                <div class="card-reading">${staff.reading}</div>
+              </div>
+              <img class="card-logo" src="img/logo.png" />
+            </div>
+          </div>
+        `;
+      }
+
+      // A4サイズでPDFダウンロード
+      function downloadA4PDF() {
+        const a4Container = document.getElementById('a4Container');
+        
+        // PDF生成時は点線を含める
+        html2canvas(a4Container, {
+          backgroundColor: 'white',
+          scale: 4, // 高解像度で生成
+          useCORS: true,
+          allowTaint: false,
+          width: 210 * 3.78, // 210mm to pixels at 96dpi
+          height: 297 * 3.78, // 297mm to pixels at 96dpi
+          windowWidth: 1200,
+          windowHeight: 1600,
+          ignoreElements: (element) => {
+            // box-shadowを持つ要素を無視
+            return element.style && element.style.boxShadow && element.style.boxShadow !== 'none';
+          }
+        })
+        .then(function(canvas) {
+          const { jsPDF } = window.jspdf;
+          const pdf = new jsPDF({
+            orientation: 'portrait',
+            unit: 'mm',
+            format: 'a4'
+          });
+
+          const imgData = canvas.toDataURL('image/png');
+          pdf.addImage(imgData, 'PNG', 0, 0, 210, 297);
+          
+          const filename = `staff-cards-${new Date().toISOString().split('T')[0]}.pdf`;
+          pdf.save(filename);
+        })
+        .catch(function(error) {
+          console.error('PDF生成エラー:', error);
+          alert('PDFの生成に失敗しました。再度お試しください。');
+        });
+      }
+
+      // 初期化実行
+      init();
+    </script>
+    
+    <footer>
+      <p class="footer-copy">&copy; KBS Kyokko Broadcasting Station</p>
+    </footer>
+  </body>
+</html>
