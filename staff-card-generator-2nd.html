@@ -216,7 +216,7 @@
         position: relative;
         width: 92mm;
         height: 55mm;
-        border: 1px dashed #999;
+        border: 1px dashed #e9bb51;
       }
 
       /* 隣り合う境界線を非表示 */
@@ -302,7 +302,6 @@
         margin-right: -7mm;
         width: 35%;
         height: 15mm;
-        background: #333;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -548,8 +547,6 @@
           if (i < staffList.length) {
             const staff = staffList[i];
             slot.innerHTML = createBusinessCard(staff);
-          } else {
-            slot.innerHTML = '<div class="empty-card">空きスロット</div>';
           }
         }
       }
