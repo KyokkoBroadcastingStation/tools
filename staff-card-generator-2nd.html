@@ -202,15 +202,14 @@
       .card-grid {
         position: absolute;
         top: 10mm;
-        left: 50%;                  /* 中央に寄せる */
-        transform: translateX(-50%);/* 左半分ずらす */
+        left: 50%;
+        transform: translateX(-50%);
         width: 184mm;
         height: 277mm;
         display: grid;
         grid-template-columns: 92mm 92mm;
         grid-template-rows: repeat(5, 55mm);
       }
-
 
       .card-slot {
         position: relative;
@@ -477,6 +476,7 @@
 
         staffList.push(staff);
         updateDisplay();
+        clearForm();
       }
 
       // スタッフを削除
@@ -547,6 +547,8 @@
           if (i < staffList.length) {
             const staff = staffList[i];
             slot.innerHTML = createBusinessCard(staff);
+          } else {
+            slot.innerHTML = '';
           }
         }
       }
@@ -571,49 +573,105 @@
 
       // A4サイズでPDFダウンロード
       function downloadA4PDF() {
+        if (staffList.length === 0) {
+          alert('スタッフを追加してからPDFをダウンロードしてください。');
+          return;
+        }
+
         const a4Container = document.getElementById('a4Container');
         
-        // 一時的にスケールを1.0に戻す
-        const originalTransform = a4Container.style.transform;
-        a4Container.style.transform = 'scale(1.0)';
+        // PDF生成専用のコンテナを作成
+        const pdfContainer = document.createElement('div');
+        pdfContainer.style.cssText = `
+          position: fixed;
+          top: -9999px;
+          left: -9999px;
+          width: 210mm;
+          height: 297mm;
+          background: white;
+          font-family: Arial, sans-serif;
+        `;
         
-        // 少し待ってからキャンバス化（レンダリング完了を待つ）
-        setTimeout(() => {
-          html2canvas(a4Container, {
-            backgroundColor: 'white',
-            scale: 3,
-            useCORS: true,
-            allowTaint: false,
-            width: 794, // 210mm at 96dpi
-            height: 1123, // 297mm at 96dpi
-            windowWidth: 1200,
-            windowHeight: 1600
-          })
-          .then(function(canvas) {
-            const { jsPDF } = window.jspdf;
-            const pdf = new jsPDF({
-              orientation: 'portrait',
-              unit: 'mm',
-              format: 'a4'
-            });
-
-            const imgData = canvas.toDataURL('image/png');
-            pdf.addImage(imgData, 'PNG', 0, 0, 210, 297);
-            
-            const filename = `staff-cards-${new Date().toISOString().split('T')[0]}.pdf`;
-            pdf.save(filename);
-            
-            // スケールを元に戻す
-            a4Container.style.transform = originalTransform;
-          })
-          .catch(function(error) {
-            console.error('PDF生成エラー:', error);
-            alert('PDFの生成に失敗しました。再度お試しください。');
-            
-            // エラー時もスケールを元に戻す
-            a4Container.style.transform = originalTransform;
+        // カードグリッドを作成
+        const pdfCardGrid = document.createElement('div');
+        pdfCardGrid.style.cssText = `
+          position: absolute;
+          top: 10mm;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 184mm;
+          height: 277mm;
+          display: grid;
+          grid-template-columns: 92mm 92mm;
+          grid-template-rows: repeat(5, 55mm);
+          grid-gap: 0;
+        `;
+        
+        // カードを生成
+        for (let i = 0; i < 10; i++) {
+          const cardSlot = document.createElement('div');
+          cardSlot.style.cssText = `
+            position: relative;
+            width: 92mm;
+            height: 55mm;
+            border: 1px dashed #e9bb51;
+          `;
+          
+          // 隣り合う境界線を調整
+          if (i % 2 === 1) {
+            cardSlot.style.borderLeft = 'none';
+          }
+          if (i >= 2) {
+            cardSlot.style.borderTop = 'none';
+          }
+          
+          if (i < staffList.length) {
+            const staff = staffList[i];
+            cardSlot.innerHTML = createBusinessCard(staff);
+          }
+          
+          pdfCardGrid.appendChild(cardSlot);
+        }
+        
+        pdfContainer.appendChild(pdfCardGrid);
+        document.body.appendChild(pdfContainer);
+        
+        // html2canvasでキャンバス化
+        html2canvas(pdfContainer, {
+          backgroundColor: 'white',
+          scale: 2,
+          useCORS: true,
+          allowTaint: false,
+          width: 794, // 210mm * 96dpi / 25.4
+          height: 1123 // 297mm * 96dpi / 25.4
+        })
+        .then(function(canvas) {
+          // PDFを作成
+          const { jsPDF } = window.jspdf;
+          const pdf = new jsPDF({
+            orientation: 'portrait',
+            unit: 'mm',
+            format: 'a4'
           });
-        }, 100); // 100ms待機してレンダリング完了を確実にする
+
+          const imgData = canvas.toDataURL('image/png');
+          pdf.addImage(imgData, 'PNG', 0, 0, 210, 297);
+          
+          const filename = `staff-cards-${new Date().toISOString().split('T')[0]}.pdf`;
+          pdf.save(filename);
+          
+          // 一時的な要素を削除
+          document.body.removeChild(pdfContainer);
+        })
+        .catch(function(error) {
+          console.error('PDF生成エラー:', error);
+          alert('PDFの生成に失敗しました。再度お試しください。');
+          
+          // エラー時も一時的な要素を削除
+          if (document.body.contains(pdfContainer)) {
+            document.body.removeChild(pdfContainer);
+          }
+        });
       }
 
       // ブラウザ印刷
