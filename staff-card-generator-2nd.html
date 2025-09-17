@@ -45,14 +45,13 @@
       }
 
       .preview-section {
-        padding: 10px;
-        width: 90%;
+        padding: 20px;
+        width: 100%;
         margin: 0 auto;
         display: flex;
-        align-items: center;
+        align-items: flex-start;
         justify-content: center;
         background: #ffffff;
-        overflow-y: auto;
         max-height: 80vh;
       }
 
@@ -108,8 +107,6 @@
         padding: 15px;
         border-radius: 10px;
         margin-bottom: 20px;
-        max-height: 200px;
-        overflow-y: auto;
       }
 
       .person-item {
@@ -200,23 +197,27 @@
         height: 297mm;
         background: white;
         position: relative;
-        margin: 0 auto;
+        margin: 10px auto;
+        transform-origin: top center;
+        flex-shrink: 0;
+        transform: scale(0.45);
       }
 
       .card-grid {
         position: absolute;
-        top: 11mm;
-        left: 14mm;
-        width: 182mm;
-        height: 275mm;
+        top: 10mm;
+        left: 13mm;
+        width: 184mm;
+        height: 277mm;
         display: grid;
-        grid-template-columns: 91mm 91mm;
+        grid-template-columns: 92mm 92mm;
         grid-template-rows: repeat(5, 55mm);
+        gap: 0;
       }
 
       .card-slot {
         position: relative;
-        width: 91mm;
+        width: 92mm;
         height: 55mm;
         border: 1px dashed #999;
       }
@@ -354,10 +355,14 @@
           max-width: 500px;
         }
         
+        .preview-section {
+          padding: 10px;
+        }
+        
         .a4-container {
           width: 100%;
           height: auto;
-          transform: scale(0.4);
+          transform: scale(0.25);
           transform-origin: top center;
         }
       }
@@ -475,7 +480,6 @@
         };
 
         staffList.push(staff);
-        clearForm();
         updateDisplay();
       }
 
@@ -575,34 +579,47 @@
       function downloadA4PDF() {
         const a4Container = document.getElementById('a4Container');
         
-        html2canvas(a4Container, {
-          backgroundColor: 'white',
-          scale: 3,
-          useCORS: true,
-          allowTaint: false,
-          width: 794, // 210mm at 96dpi
-          height: 1123, // 297mm at 96dpi
-          windowWidth: 1200,
-          windowHeight: 1600
-        })
-        .then(function(canvas) {
-          const { jsPDF } = window.jspdf;
-          const pdf = new jsPDF({
-            orientation: 'portrait',
-            unit: 'mm',
-            format: 'a4'
-          });
+        // 一時的にスケールを1.0に戻す
+        const originalTransform = a4Container.style.transform;
+        a4Container.style.transform = 'scale(1.0)';
+        
+        // 少し待ってからキャンバス化（レンダリング完了を待つ）
+        setTimeout(() => {
+          html2canvas(a4Container, {
+            backgroundColor: 'white',
+            scale: 3,
+            useCORS: true,
+            allowTaint: false,
+            width: 794, // 210mm at 96dpi
+            height: 1123, // 297mm at 96dpi
+            windowWidth: 1200,
+            windowHeight: 1600
+          })
+          .then(function(canvas) {
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF({
+              orientation: 'portrait',
+              unit: 'mm',
+              format: 'a4'
+            });
 
-          const imgData = canvas.toDataURL('image/png');
-          pdf.addImage(imgData, 'PNG', 0, 0, 210, 297);
-          
-          const filename = `staff-cards-${new Date().toISOString().split('T')[0]}.pdf`;
-          pdf.save(filename);
-        })
-        .catch(function(error) {
-          console.error('PDF生成エラー:', error);
-          alert('PDFの生成に失敗しました。再度お試しください。');
-        });
+            const imgData = canvas.toDataURL('image/png');
+            pdf.addImage(imgData, 'PNG', 0, 0, 210, 297);
+            
+            const filename = `staff-cards-${new Date().toISOString().split('T')[0]}.pdf`;
+            pdf.save(filename);
+            
+            // スケールを元に戻す
+            a4Container.style.transform = originalTransform;
+          })
+          .catch(function(error) {
+            console.error('PDF生成エラー:', error);
+            alert('PDFの生成に失敗しました。再度お試しください。');
+            
+            // エラー時もスケールを元に戻す
+            a4Container.style.transform = originalTransform;
+          });
+        }, 100); // 100ms待機してレンダリング完了を確実にする
       }
 
       // ブラウザ印刷
