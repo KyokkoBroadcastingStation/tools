@@ -18,7 +18,10 @@
         min-height: 100vh;
         align-items: center;
         justify-content: center;
+        font-family: Arial, sans-serif;
       }
+
+
 
       .container {
         background: white;
@@ -51,6 +54,7 @@
         justify-content: center;
         background: #ffffff;
         max-height: 80vh;
+        overflow-y: auto;
       }
 
       .container-title {
@@ -147,6 +151,109 @@
         background: #c82333;
       }
 
+      /* リアルタイムプレビューセクション */
+      .live-preview {
+        background: linear-gradient(135deg, #e3f2fd, #f8f9ff);
+        padding: 20px;
+        border-radius: 15px;
+        margin-bottom: 25px;
+        border: 2px solid #e1e8ed;
+      }
+
+      .live-preview h3 {
+        color: #333;
+        margin-bottom: 15px;
+        font-size: 18px;
+        text-align: center;
+        font-weight: 600;
+      }
+
+      .preview-card-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 10px;
+      }
+
+      .preview-business-card {
+        width: 182px;
+        height: 110px;
+        background: white;
+        border-radius: 4px;
+        padding: 5px 10px;
+        color: #333;
+        position: relative;
+        overflow: hidden;
+        font-family: 'Arial', sans-serif;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        transform: scale(1);
+        transition: all 0.3s ease;
+      }
+
+      .preview-business-card:hover {
+        transform: scale(1.02);
+        box-shadow: 0 6px 18px rgba(0,0,0,0.2);
+      }
+
+      .preview-card-content {
+        position: relative;
+        z-index: 2;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .preview-company-name {
+        font-size: 8px;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 10px;
+        letter-spacing: 0.4px;
+      }
+
+      .preview-card-main {
+        border-left: 1px solid #333;
+        margin-top: 5px;
+        flex-grow: 1;
+      }
+
+      .preview-card-position,
+      .preview-card-grade {
+        font-size: 5.6px;
+        color: #333;
+        margin-bottom: 0;
+        padding-left: 4px;
+      }
+
+      .preview-card-name {
+        font-size: 20px;
+        font-weight: 700;
+        margin-bottom: 0;
+        color: #333;
+        letter-spacing: 1px;
+        padding-left: 3px;
+        line-height: 1.1;
+      }
+
+      .preview-card-reading {
+        font-size: 5px;
+        color: #666;
+        margin-bottom: 3px;
+        padding-left: 4px;
+      }
+
+      .preview-empty-card {
+        background: #f8f9fa;
+        border: 2px dashed #ccc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #aaa;
+        font-size: 12px;
+        text-align: center;
+        line-height: 1.4;
+      }
+
       /* ボタンスタイル */
       .add-btn, .download-btn, .reset-btn {
         width: 100%;
@@ -197,6 +304,14 @@
         flex-shrink: 1;
         transform: scale(0.6);
         margin: 0 auto;
+      }
+
+      .a4-title {
+        text-align: center;
+        color: #333;
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 20px;
       }
 
       .card-grid {
@@ -285,15 +400,6 @@
         padding-left: 2mm;
       }
 
-      .card-slogan {
-        position: absolute;
-        bottom: 6mm;
-        right: 6mm;
-        font-size: 2.8mm;
-        color: #999;
-        font-weight: 300;
-      }
-
       .card-logo {
         position: absolute;
         bottom: 0;
@@ -307,41 +413,6 @@
         color: white;
         font-weight: bold;
         font-size: 3mm;
-      }
-
-      .empty-card {
-        background: #f8f9fa;
-        border: 1px dashed #ccc;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #aaa;
-        font-size: 3mm;
-      }
-
-      @media print {
-        body * {
-          visibility: hidden;
-        }
-        
-        .a4-container, .a4-container * {
-          visibility: visible;
-        }
-        
-        .a4-container {
-          position: absolute;
-          left: 0;
-          top: 0;
-          width: 210mm !important;
-          height: 297mm !important;
-          margin: 0 !important;
-          padding: 0 !important;
-        }
-        
-        @page {
-          size: A4;
-          margin: 0;
-        }
       }
 
       @media (max-width: 768px) {
@@ -360,14 +431,22 @@
           transform: scale(0.25);
           transform-origin: top center;
         }
+
+        .preview-business-card {
+          width: 150px;
+          height: 90px;
+          padding: 4px 8px;
+        }
+
+        .preview-card-name {
+          font-size: 16px;
+        }
       }
     </style>
   </head>
   <body>
     <header>
-      <a href="/tools">
-        <h1>KBS情報通信ネットワーク</h1>
-      </a>
+      <h1>KBS情報通信ネットワーク</h1>
     </header>
     
     <div class="container">
@@ -376,6 +455,16 @@
         
         <div class="current-person">
           人数: <span id="personCount">0</span>/10
+        </div>
+
+        <!-- リアルタイムプレビューセクション -->
+        <div class="live-preview">
+          <h3>入力中データのプレビュー</h3>
+          <div class="preview-card-container">
+            <div class="preview-business-card preview-empty-card" id="livePreviewCard">
+              情報を入力すると<br>リアルタイムで<br>プレビューが表示されます
+            </div>
+          </div>
         </div>
 
         <div class="person-list" id="personList" style="display: none;">
@@ -419,6 +508,7 @@
       </div>
 
       <div class="preview-section">
+        <div class="a4-title">A4印刷レイアウト</div>
         <div class="a4-container" id="a4Container">
           <div class="card-grid" id="cardGrid">
             <!-- 10個のカードスロット -->
@@ -434,6 +524,44 @@
       function init() {
         generateCardSlots();
         updateDisplay();
+        setupInputListeners();
+      }
+
+      // 入力フィールドのイベントリスナーを設定
+      function setupInputListeners() {
+        const inputs = ['name', 'reading', 'position', 'grade'];
+        inputs.forEach(id => {
+          document.getElementById(id).addEventListener('input', updateLivePreview);
+        });
+      }
+
+      // リアルタイムプレビューを更新
+      function updateLivePreview() {
+        const name = document.getElementById('name').value.trim();
+        const reading = document.getElementById('reading').value.trim();
+        const position = document.getElementById('position').value.trim();
+        const grade = document.getElementById('grade').value.trim();
+
+        const previewCard = document.getElementById('livePreviewCard');
+        
+        if (!name && !reading && !position && !grade) {
+          previewCard.className = 'preview-business-card preview-empty-card';
+          previewCard.innerHTML = '情報を入力すると<br>リアルタイムで<br>プレビューが表示されます';
+          return;
+        }
+
+        previewCard.className = 'preview-business-card';
+        previewCard.innerHTML = `
+          <div class="preview-card-content">
+            <div class="preview-company-name">KBS 旭工放送局</div>
+            <div class="preview-card-main">
+              <div class="preview-card-position">${position || '役職未入力'}</div>
+              <div class="preview-card-grade">${grade || '学年・学科未入力'}</div>
+              <div class="preview-card-name">${name || '名前未入力'}</div>
+              <div class="preview-card-reading">${reading || '読み仮名未入力'}</div>
+            </div>
+          </div>
+        `;
       }
 
       // カードスロットを生成
@@ -477,6 +605,7 @@
         staffList.push(staff);
         updateDisplay();
         clearForm();
+        updateLivePreview();
       }
 
       // スタッフを削除
@@ -498,6 +627,7 @@
         staffList = [];
         clearForm();
         updateDisplay();
+        updateLivePreview();
       }
 
       // 表示を更新
@@ -565,7 +695,6 @@
                 <div class="card-name">${staff.name}</div>
                 <div class="card-reading">${staff.reading}</div>
               </div>
-              <img class="card-logo" src="img/logo.png" />
             </div>
           </div>
         `;
@@ -672,11 +801,6 @@
             document.body.removeChild(pdfContainer);
           }
         });
-      }
-
-      // ブラウザ印刷
-      function printA4() {
-        window.print();
       }
 
       // 初期化実行
