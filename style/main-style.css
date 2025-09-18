@@ -33,7 +33,6 @@ header h1{
 }
 
 footer {
-    position: absolute;
     display: flex;
     bottom: 0;
     width: 100%;
@@ -58,4 +57,7 @@ footer {
 .github-img{
     width: 20px;
     height: 20px;
+}
+
+@media (max-width: 768px) {
 }
