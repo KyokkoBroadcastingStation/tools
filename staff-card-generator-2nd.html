@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="style/main-style.css" />
+    <link rel="stylesheet" href="style/staff-card.css" />
     <title>スタッフ証ジェネレーター</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -64,6 +65,37 @@
 
       .form-group {
         margin-bottom: 25px;
+      }
+
+      .checkbox-group {
+        margin-bottom: 25px;
+        display: flex;
+        align-items: center;
+        padding: 15px;
+        background: white;
+        border: 2px solid #e1e5e9;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+      }
+
+      .checkbox-group:hover {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      }
+
+      .checkbox-group input[type="checkbox"] {
+        width: auto;
+        margin-right: 10px;
+        transform: scale(1.2);
+        cursor: pointer;
+      }
+
+      .checkbox-group label {
+        margin: 0;
+        cursor: pointer;
+        color: #555;
+        font-weight: 600;
+        font-size: 14px;
       }
 
       label {
@@ -135,6 +167,16 @@
       .person-details {
         color: #666;
         font-size: 12px;
+      }
+
+      .training-badge {
+        background: #dc3545;
+        color: white;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-size: 10px;
+        font-weight: 600;
+        margin-left: 5px;
       }
 
       .delete-btn {
@@ -247,6 +289,21 @@
         color: white;
         font-weight: bold;
         font-size: 3mm;
+      }
+
+      /* training.png用のスタイル（プレビュー用） */
+      .preview-training-logo {
+        position: absolute;
+        top: -10px;
+        right: -20px;
+        width: 100%;
+        z-index: -1;
+        display: none; /* 初期状態では非表示 */
+        object-fit: contain;
+      }
+
+      .preview-training-logo.visible {
+        display: block;
       }
 
       .preview-empty-card {
@@ -424,6 +481,21 @@
         font-size: 3mm;
       }
 
+      /* training.png用のスタイル（A4印刷用） */
+      .training-logo {
+        position: absolute;
+        top: -10px;
+        right: -20px;
+        width: 100%;
+        z-index: -1;
+        display: none; /* 初期状態では非表示 */
+        object-fit: contain;
+      }
+
+      .training-logo.visible {
+        display: block;
+      }
+
       @media (max-width: 768px) {
         .container {
           grid-template-columns: 1fr;
@@ -445,8 +517,6 @@
           transform: scale(0.5);
           transform-origin: top center;
         }
-
-
       }
     </style>
   </head>
@@ -466,6 +536,11 @@
         </div>
 
         <form id="cardForm">
+          <div class="checkbox-group">
+            <input type="checkbox" id="trainingMode" />
+            <label for="trainingMode">研修中マークを表示</label>
+          </div>
+
           <div class="form-group">
             <label for="name">名前</label>
             <input type="text" id="name" placeholder="例：山田 太郎" />
@@ -542,6 +617,9 @@
         inputs.forEach(id => {
           document.getElementById(id).addEventListener('input', updateLivePreview);
         });
+        
+        // 研修中チェックボックスのイベントリスナーも追加
+        document.getElementById('trainingMode').addEventListener('change', updateLivePreview);
       }
 
       // リアルタイムプレビューを更新
@@ -550,6 +628,7 @@
         const reading = document.getElementById('reading').value.trim();
         const position = document.getElementById('position').value.trim();
         const grade = document.getElementById('grade').value.trim();
+        const isTraining = document.getElementById('trainingMode').checked;
 
         const previewCard = document.getElementById('livePreviewCard');
         
@@ -570,6 +649,7 @@
               <div class="preview-card-reading">${reading || '読み仮名未入力'}</div>
             </div>
             <img class="preview-card-logo" src="img/logo.png" />
+            <img class="preview-training-logo ${isTraining ? 'visible' : ''}" src="img/training.png" alt="研修中" />
           </div>
         `;
       }
@@ -598,6 +678,7 @@
         const reading = document.getElementById('reading').value.trim();
         const position = document.getElementById('position').value.trim();
         const grade = document.getElementById('grade').value.trim();
+        const isTraining = document.getElementById('trainingMode').checked;
 
         if (!name || !reading || !position || !grade) {
           alert('すべての項目を入力してください。');
@@ -609,7 +690,8 @@
           name: name,
           reading: reading,
           position: position,
-          grade: grade
+          grade: grade,
+          isTraining: isTraining
         };
 
         staffList.push(staff);
@@ -629,6 +711,7 @@
         document.getElementById('reading').value = '';
         document.getElementById('position').value = '';
         document.getElementById('grade').value = '';
+        document.getElementById('trainingMode').checked = false;
       }
 
       // すべてリセット
@@ -669,7 +752,10 @@
           item.className = 'person-item';
           item.innerHTML = `
             <div>
-              <div class="person-name">${staff.name}</div>
+              <div class="person-name">
+                ${staff.name}
+                ${staff.isTraining ? '<span class="training-badge">研修中</span>' : ''}
+              </div>
               <div class="person-details">${staff.position} - ${staff.grade}</div>
             </div>
             <button class="delete-btn" onclick="deletePerson(${staff.id})">削除</button>
@@ -705,6 +791,7 @@
                 <div class="card-reading">${staff.reading}</div>
               </div>
               <img class="card-logo" src="img/logo.png" />
+              <img class="training-logo ${staff.isTraining ? 'visible' : ''}" src="img/training.png" alt="研修中" />
             </div>
           </div>
         `;
@@ -774,42 +861,74 @@
         
         pdfContainer.appendChild(pdfCardGrid);
         document.body.appendChild(pdfContainer);
-        
-        // html2canvasでキャンバス化
-        html2canvas(pdfContainer, {
-          backgroundColor: 'white',
-          scale: 2,
-          useCORS: true,
-          allowTaint: false,
-          width: 794, // 210mm * 96dpi / 25.4
-          height: 1123 // 297mm * 96dpi / 25.4
-        })
-        .then(function(canvas) {
-          // PDFを作成
-          const { jsPDF } = window.jspdf;
-          const pdf = new jsPDF({
-            orientation: 'portrait',
-            unit: 'mm',
-            format: 'a4'
-          });
 
-          const imgData = canvas.toDataURL('image/png');
-          pdf.addImage(imgData, 'PNG', 0, 0, 210, 297);
-          
-          const filename = `staff-cards-${new Date().toISOString().split('T')[0]}.pdf`;
-          pdf.save(filename);
-          
-          // 一時的な要素を削除
-          document.body.removeChild(pdfContainer);
-        })
-        .catch(function(error) {
-          console.error('PDF生成エラー:', error);
-          alert('PDFの生成に失敗しました。再度お試しください。');
-          
-          // エラー時も一時的な要素を削除
-          if (document.body.contains(pdfContainer)) {
-            document.body.removeChild(pdfContainer);
+        // 画像の読み込みを待つためのプロミス
+        const imagesToLoad = [];
+        const trainingLogos = pdfContainer.querySelectorAll('.training-logo.visible');
+        const cardLogos = pdfContainer.querySelectorAll('.card-logo');
+
+        // training.pngの読み込み完了を待つ
+        trainingLogos.forEach(logo => {
+          if (!logo.complete) {
+            imagesToLoad.push(new Promise((resolve) => {
+              logo.onload = resolve;
+              logo.onerror = resolve;
+            }));
           }
+        });
+
+        // card logoの読み込み完了を待つ
+        cardLogos.forEach(logo => {
+          if (!logo.complete) {
+            imagesToLoad.push(new Promise((resolve) => {
+              logo.onload = resolve;
+              logo.onerror = resolve;
+            }));
+          }
+        });
+        
+        // 全ての画像の読み込み完了を待つ
+        Promise.all(imagesToLoad).then(() => {
+          // 少し待ってからレンダリング開始
+          setTimeout(() => {
+            // html2canvasでキャンバス化
+            html2canvas(pdfContainer, {
+              backgroundColor: 'white',
+              scale: 2,
+              useCORS: true,
+              allowTaint: false,
+              width: 794, // 210mm * 96dpi / 25.4
+              height: 1123, // 297mm * 96dpi / 25.4
+              logging: false
+            })
+            .then(function(canvas) {
+              // PDFを作成
+              const { jsPDF } = window.jspdf;
+              const pdf = new jsPDF({
+                orientation: 'portrait',
+                unit: 'mm',
+                format: 'a4'
+              });
+
+              const imgData = canvas.toDataURL('image/png', 1.0);
+              pdf.addImage(imgData, 'PNG', 0, 0, 210, 297);
+              
+              const filename = `staff-cards-${new Date().toISOString().split('T')[0]}.pdf`;
+              pdf.save(filename);
+              
+              // 一時的な要素を削除
+              document.body.removeChild(pdfContainer);
+            })
+            .catch(function(error) {
+              console.error('PDF生成エラー:', error);
+              alert('PDFの生成に失敗しました。再度お試しください。');
+              
+              // エラー時も一時的な要素を削除
+              if (document.body.contains(pdfContainer)) {
+                document.body.removeChild(pdfContainer);
+              }
+            });
+          }, 300);
         });
       }
 

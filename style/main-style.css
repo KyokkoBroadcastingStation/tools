@@ -34,12 +34,15 @@ header h1{
 
 footer {
     display: flex;
+    background-color: #ffffff;
     bottom: 0;
     width: 100%;
     opacity: 0.5;
     font-size: 12px;
     margin-top: 10px;
     padding: 10px 20px;
+    box-shadow: var(--Container_shadow);
+    border-radius: var(--boder-radius) var(--boder-radius) 0 0;
 }
 
 .footer-copy{

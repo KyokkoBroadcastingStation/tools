@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="style/main-style.css" />
+    <link rel="stylesheet" href="style/staff-card.css" />
     <title>スタッフ証ジェネレーター</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -62,6 +63,37 @@
 
       .form-group {
         margin-bottom: 25px;
+      }
+
+      .checkbox-group {
+        margin-bottom: 25px;
+        display: flex;
+        align-items: center;
+        padding: 15px;
+        background: white;
+        border: 2px solid #e1e5e9;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+      }
+
+      .checkbox-group:hover {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      }
+
+      .checkbox-group input[type="checkbox"] {
+        width: auto;
+        margin-right: 10px;
+        transform: scale(1.2);
+        cursor: pointer;
+      }
+
+      .checkbox-group label {
+        margin: 0;
+        cursor: pointer;
+        color: #555;
+        font-weight: 600;
+        font-size: 14px;
       }
 
       label {
@@ -170,6 +202,21 @@
         font-weight: bold;
       }
 
+      /* training.png用のスタイル */
+      .training-logo {
+        position: absolute;
+        top: -10px;
+        right: -20px;
+        width: 100%;
+        z-index: -1;
+        display: none; /* 初期状態では非表示 */
+        object-fit: contain;
+      }
+
+      .training-logo.visible {
+        display: block;
+      }
+
       /* PDF生成用の固定サイズクラス */
       .business-card.pdf-generation {
         width: 400px !important;
@@ -197,6 +244,13 @@
 
       .business-card.pdf-generation .card-reading {
         font-size: 11px !important;
+      }
+
+      .business-card.pdf-generation .training-logo {
+        top: -10px !important;
+        right: -20px !important;
+        width: 100% !important;
+        z-index: -1 !important;
       }
 
       .empty-state {
@@ -274,6 +328,11 @@
       <div class="input-section">
         <h1 class="container-title">スタッフ証ジェネレーター</h1>
         <form id="cardForm">
+          <div class="checkbox-group">
+            <input type="checkbox" id="trainingMode" />
+            <label for="trainingMode">研修中マークを表示</label>
+          </div>
+
           <div class="form-group">
             <label for="name">名前</label>
             <input type="text" id="name" placeholder="例：山田 太郎" />
@@ -331,6 +390,7 @@
               <div class="card-reading" id="previewReading">Tarou Yamada</div>
             </div>
             <img class="card-logo" src="img/logo.png" />
+            <img class="training-logo" id="trainingLogo" src="img/training.png" alt="研修中" />
           </div>
         </div>
       </div>
@@ -351,13 +411,27 @@
         document.getElementById("previewGrade").textContent = grade;
       }
 
+      // 研修中マークの表示・非表示を切り替える関数
+      function toggleTrainingLogo() {
+        const trainingMode = document.getElementById("trainingMode").checked;
+        const trainingLogo = document.getElementById("trainingLogo");
+        
+        if (trainingMode) {
+          trainingLogo.classList.add("visible");
+        } else {
+          trainingLogo.classList.remove("visible");
+        }
+      }
+
       // フォームをリセットする関数
       function resetForm() {
         document.getElementById("name").value = "";
         document.getElementById("reading").value = "";
         document.getElementById("position").value = "";
         document.getElementById("grade").value = "";
+        document.getElementById("trainingMode").checked = false;
         updatePreview(); // プレビューも更新
+        toggleTrainingLogo(); // 研修中マークも更新
       }
 
       // 入力フィールドにイベントリスナーを追加
@@ -369,6 +443,7 @@
         .getElementById("position")
         .addEventListener("input", updatePreview);
       document.getElementById("grade").addEventListener("input", updatePreview);
+      document.getElementById("trainingMode").addEventListener("change", toggleTrainingLogo);
 
       // 名刺を固定サイズでレンダリングする関数
       function renderCardForExport(callback) {
@@ -386,88 +461,152 @@
       // html2canvasを使用してCSSをそのまま画像として出力
       function downloadCardAsImage() {
         renderCardForExport((businessCard) => {
-          html2canvas(businessCard, {
-            backgroundColor: "white",
-            scale: 3, // 高解像度
-            useCORS: true, // 外部画像対応
-            allowTaint: false,
-            width: 400,
-            height: 240,
-            windowWidth: 1200, // 固定ウィンドウ幅
-            windowHeight: 800, // 固定ウィンドウ高さ
-          })
-            .then(function (canvas) {
-              // PDF生成用クラスを削除
-              businessCard.classList.remove("pdf-generation");
+          // 画像の読み込みを待つためのプロミス
+          const trainingLogo = document.getElementById('trainingLogo');
+          const cardLogo = businessCard.querySelector('.card-logo');
+          const imagesToLoad = [];
 
-              // ダウンロード
-              canvas.toBlob(function (blob) {
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement("a");
-                a.href = url;
-                a.download = "business-card.png";
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-              });
-            })
-            .catch(function (error) {
-              businessCard.classList.remove("pdf-generation");
-              console.error("画像生成エラー:", error);
-              alert("画像の生成に失敗しました。再度お試しください。");
-            });
+          // training.pngが表示されている場合、読み込み完了を待つ
+          if (trainingLogo.classList.contains('visible')) {
+            if (!trainingLogo.complete) {
+              imagesToLoad.push(new Promise((resolve) => {
+                trainingLogo.onload = resolve;
+                trainingLogo.onerror = resolve; // エラーでも続行
+              }));
+            }
+          }
+
+          // logo.pngの読み込み完了を待つ
+          if (!cardLogo.complete) {
+            imagesToLoad.push(new Promise((resolve) => {
+              cardLogo.onload = resolve;
+              cardLogo.onerror = resolve; // エラーでも続行
+            }));
+          }
+
+          // 全ての画像の読み込み完了を待つ
+          Promise.all(imagesToLoad).then(() => {
+            // 少し待ってからレンダリング開始
+            setTimeout(() => {
+              html2canvas(businessCard, {
+                backgroundColor: "white",
+                scale: 3, // 高解像度
+                useCORS: true, // 外部画像対応
+                allowTaint: false,
+                width: 400,
+                height: 240,
+                windowWidth: 1200, // 固定ウィンドウ幅
+                windowHeight: 800, // 固定ウィンドウ高さ
+                logging: false,
+              })
+                .then(function (canvas) {
+                  // PDF生成用クラスを削除
+                  businessCard.classList.remove("pdf-generation");
+
+                  // ダウンロード
+                  canvas.toBlob(function (blob) {
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = "business-card.png";
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                  });
+                })
+                .catch(function (error) {
+                  businessCard.classList.remove("pdf-generation");
+                  console.error("画像生成エラー:", error);
+                  alert("画像の生成に失敗しました。再度お試しください。");
+                });
+            }, 200);
+          });
         });
       }
 
       // 名刺サイズのPDFとして出力
       function downloadCardAsPDF() {
         renderCardForExport((businessCard) => {
-          html2canvas(businessCard, {
-            backgroundColor: "white",
-            scale: 4, // PDFのために高解像度
-            useCORS: true,
-            allowTaint: false,
-            width: 400,
-            height: 240,
-            windowWidth: 1200, // 固定ウィンドウ幅
-            windowHeight: 800, // 固定ウィンドウ高さ
-          })
-            .then(function (canvas) {
-              // PDF生成用クラスを削除
-              businessCard.classList.remove("pdf-generation");
+          // 画像の読み込みを待つためのプロミス
+          const trainingLogo = document.getElementById('trainingLogo');
+          const cardLogo = businessCard.querySelector('.card-logo');
+          const imagesToLoad = [];
 
-              // jsPDFを使用してPDF作成
-              const { jsPDF } = window.jspdf;
+          // training.pngが表示されている場合、読み込み完了を待つ
+          if (trainingLogo.classList.contains('visible')) {
+            if (!trainingLogo.complete) {
+              imagesToLoad.push(new Promise((resolve) => {
+                trainingLogo.onload = resolve;
+                trainingLogo.onerror = resolve; // エラーでも続行
+              }));
+            }
+          }
 
-              // 名刺の標準サイズ（91mm x 55mm）
-              const cardWidthMM = 91;
-              const cardHeightMM = 55;
+          // logo.pngの読み込み完了を待つ
+          if (!cardLogo.complete) {
+            imagesToLoad.push(new Promise((resolve) => {
+              cardLogo.onload = resolve;
+              cardLogo.onerror = resolve; // エラーでも続行
+            }));
+          }
 
-              // PDFを名刺サイズで作成
-              const pdf = new jsPDF({
-                orientation: "landscape", // 横向き
-                unit: "mm",
-                format: [cardWidthMM, cardHeightMM],
-              });
+          // 全ての画像の読み込み完了を待つ
+          Promise.all(imagesToLoad).then(() => {
+            // 少し待ってからレンダリング開始
+            setTimeout(() => {
+              html2canvas(businessCard, {
+                backgroundColor: "white",
+                scale: 4, // PDFのために高解像度
+                useCORS: true,
+                allowTaint: false,
+                width: 400,
+                height: 240,
+                windowWidth: 1200, // 固定ウィンドウ幅
+                windowHeight: 800, // 固定ウィンドウ高さ
+                logging: false, // ログを無効化
+                onrendered: function() {
+                  // レンダリング完了時の処理
+                }
+              })
+                .then(function (canvas) {
+                  // PDF生成用クラスを削除
+                  businessCard.classList.remove("pdf-generation");
 
-              // Canvasの画像をPDFに追加
-              const imgData = canvas.toDataURL("image/png");
-              pdf.addImage(imgData, "PNG", 0, 0, cardWidthMM, cardHeightMM);
+                  // jsPDFを使用してPDF作成
+                  const { jsPDF } = window.jspdf;
 
-              // PDFをダウンロード
-              pdf.save("business-card.pdf");
-            })
-            .catch(function (error) {
-              businessCard.classList.remove("pdf-generation");
-              console.error("PDF生成エラー:", error);
-              alert("PDFの生成に失敗しました。再度お試しください。");
-            });
+                  // 名刺の標準サイズ（91mm x 55mm）
+                  const cardWidthMM = 91;
+                  const cardHeightMM = 55;
+
+                  // PDFを名刺サイズで作成
+                  const pdf = new jsPDF({
+                    orientation: "landscape", // 横向き
+                    unit: "mm",
+                    format: [cardWidthMM, cardHeightMM],
+                  });
+
+                  // Canvasの画像をPDFに追加
+                  const imgData = canvas.toDataURL("image/png", 1.0);
+                  pdf.addImage(imgData, "PNG", 0, 0, cardWidthMM, cardHeightMM);
+
+                  // PDFをダウンロード
+                  pdf.save("business-card.pdf");
+                })
+                .catch(function (error) {
+                  businessCard.classList.remove("pdf-generation");
+                  console.error("PDF生成エラー:", error);
+                  alert("PDFの生成に失敗しました。再度お試しください。");
+                });
+            }, 200);
+          });
         });
       }
 
       // 初期プレビュー更新
       updatePreview();
+      toggleTrainingLogo();
     </script>
     <footer>
       <p class="footer-copy">&copy; KBS Kyokko Broadcasting Station</p>
