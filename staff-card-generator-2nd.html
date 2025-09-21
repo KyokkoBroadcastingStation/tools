@@ -129,82 +129,6 @@
         transition: all 0.3s ease;
       }
 
-      .preview-card-content {
-        position: relative;
-        z-index: 2;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-      }
-
-      .preview-company-name {
-        font-size: 4mm;
-        font-weight: 700;
-        color: #333;
-        margin-bottom: 5mm;
-        letter-spacing: 0.2mm;
-      }
-
-      .preview-card-main {
-        border-left: 0.5mm solid #333;
-        margin-top: 2.5mm;
-      }
-
-      .preview-card-position,
-      .preview-card-grade {
-        font-size: 2.8mm;
-        color: #333;
-        margin-bottom: 0;
-        padding-left: 2mm;
-      }
-
-      .preview-card-name {
-        font-size: 10mm;
-        font-weight: 700;
-        margin-bottom: 0;
-        color: #333;
-        letter-spacing: 0.5mm;
-        padding-left: 1.5mm;
-        line-height: 1.1;
-      }
-
-      .preview-card-reading {
-        font-size: 2.5mm;
-        color: #666;
-        margin-bottom: 1.5mm;
-        padding-left: 2mm;
-      }
-
-      .preview-card-logo {
-        position: absolute;
-        bottom: 0;
-        right: 0;
-        margin-right: -7mm;
-        width: 35%;
-        height: 15mm;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-weight: bold;
-        font-size: 3mm;
-      }
-
-      /* training.png用のスタイル（プレビュー用） */
-      .preview-training-logo {
-        position: absolute;
-        top: -10px;
-        right: -20px;
-        width: 100%;
-        z-index: -1;
-        display: none; /* 初期状態では非表示 */
-        object-fit: contain;
-      }
-
-      .preview-training-logo.visible {
-        display: block;
-      }
-
       .preview-empty-card {
         background: #f8f9fa;
         border: 2px dashed #ccc;
@@ -217,49 +141,7 @@
         line-height: 1.4;
         padding: 5mm;
       }
-
-      /* ボタンスタイル */
-      .add-btn, .download-btn, .reset-btn {
-        width: 100%;
-        margin-top: 10px;
-        padding: 15px 20px;
-        color: white;
-        border: none;
-        border-radius: 10px;
-        font-size: 14px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-      }
-
-      .add-btn {
-        background: linear-gradient(135deg, #28a745, #20c997);
-      }
-
-      .download-btn {
-        background: linear-gradient(135deg, #667eea, #764ba2);
-      }
-
-      .reset-btn {
-        background: linear-gradient(135deg, #dc3545, #c82333);
-        margin-bottom: 20px;
-      }
-
-      .add-btn:hover, .download-btn:hover, .reset-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
-      }
-
-      .add-btn:hover {
-        box-shadow: 0 10px 25px rgba(40, 167, 69, 0.3);
-      }
-
-      .reset-btn:hover {
-        box-shadow: 0 10px 25px rgba(220, 53, 69, 0.3);
-      }
-
+      
       /* A4印刷用スタイル */
       .a4-container {
         width: 100%;
@@ -297,15 +179,6 @@
         border: 1px dashed #e9bb51;
       }
 
-      /* 隣り合う境界線を非表示 */
-      .card-slot:nth-child(even) {
-        border-left: none;
-      }
-      
-      .card-slot:nth-child(n+3) {
-        border-top: none;
-      }
-
       .business-card {
         width: 91mm;
         height: 55mm;
@@ -319,81 +192,6 @@
         z-index: -1;
       }
 
-      .card-content {
-        position: relative;
-        z-index: 2;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-      }
-
-      .company-name {
-        font-size: 4mm;
-        font-weight: 700;
-        color: #333;
-        margin-bottom: 5mm;
-        letter-spacing: 0.2mm;
-      }
-
-      .card-main {
-        border-left: 0.5mm solid #333;
-        margin-top: 2.5mm;
-      }
-
-      .card-position,
-      .card-grade {
-        font-size: 2.8mm;
-        color: #333;
-        margin-bottom: 0;
-        padding-left: 2mm;
-      }
-
-      .card-name {
-        font-size: 10mm;
-        font-weight: 700;
-        margin-bottom: 0;
-        color: #333;
-        letter-spacing: 0.5mm;
-        padding-left: 1.5mm;
-        line-height: 1.1;
-      }
-
-      .card-reading {
-        font-size: 2.5mm;
-        color: #666;
-        margin-bottom: 1.5mm;
-        padding-left: 2mm;
-      }
-
-      .card-logo {
-        position: absolute;
-        bottom: 0;
-        right: 0;
-        margin-right: -7mm;
-        width: 35%;
-        height: 15mm;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-weight: bold;
-        font-size: 3mm;
-      }
-
-      /* training.png用のスタイル（A4印刷用） */
-      .training-logo {
-        position: absolute;
-        top: -10px;
-        right: -20px;
-        width: 100%;
-        z-index: -1;
-        display: none; /* 初期状態では非表示 */
-        object-fit: contain;
-      }
-
-      .training-logo.visible {
-        display: block;
-      }
 
       @media (max-width: 768px) {
         .container {
