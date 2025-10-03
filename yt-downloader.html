@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Downloader</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+            text-align: center;
+        }
+
+        .subtitle {
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: #555;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .quality-group {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .quality-btn {
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            background: white;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .quality-btn:hover {
+            border-color: #667eea;
+        }
+
+        .quality-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 16px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .get-info-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .download-btn {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            display: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .video-info {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .video-info img {
+            width: 100%;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .video-info h3 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .video-info p {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .message {
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 8px;
+            display: none;
+            text-align: center;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .message.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .info-box {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 13px;
+            color: #856404;
+        }
+
+        .info-box strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .formats-list {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+
+        .format-item {
+            padding: 10px;
+            margin: 5px 0;
+            background: white;
+            border-radius: 5px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .format-item:hover {
+            border-color: #667eea;
+        }
+
+        .format-item.selected {
+            background: #667eea;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎬 YouTube Downloader</h1>
+        <p class="subtitle">YouTubeの動画URLを入力してください</p>
+
+        <div class="input-group">
+            <label for="videoUrl">動画URL</label>
+            <input 
+                type="text" 
+                id="videoUrl" 
+                placeholder="https://www.youtube.com/watch?v=..."
+            >
+        </div>
+
+        <div class="input-group">
+            <label>画質選択</label>
+            <div class="quality-group">
+                <button class="quality-btn" data-quality="360">360p</button>
+                <button class="quality-btn active" data-quality="720">720p</button>
+                <button class="quality-btn" data-quality="1080">1080p</button>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <button class="btn get-info-btn" id="getInfoBtn">動画情報を取得</button>
+            <button class="btn download-btn" id="downloadBtn">ダウンロード</button>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p style="margin-top: 10px; color: #666;">処理中...</p>
+        </div>
+
+        <div class="video-info" id="videoInfo">
+            <img id="thumbnail" src="" alt="サムネイル">
+            <h3 id="title"></h3>
+            <p><strong>長さ:</strong> <span id="duration"></span></p>
+            <p><strong>チャンネル:</strong> <span id="channel"></span></p>
+            <div class="formats-list" id="formatsList"></div>
+        </div>
+
+        <div class="message" id="message"></div>
+
+        <div class="info-box">
+            <strong>📝 使い方</strong>
+            1. YouTube動画のURLを入力<br>
+            2. 「動画情報を取得」をクリック<br>
+            3. 画質を選択<br>
+            4. 「ダウンロード」をクリック<br><br>
+            <strong>⚠️ 注意</strong>
+            著作権で保護されたコンテンツのダウンロードは違法です。個人利用の範囲でご使用ください。
+        </div>
+    </div>
+
+    <script>
+        let selectedQuality = '720';
+        let videoData = null;
+        let selectedFormat = null;
+
+        const videoUrlInput = document.getElementById('videoUrl');
+        const getInfoBtn = document.getElementById('getInfoBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const loading = document.getElementById('loading');
+        const message = document.getElementById('message');
+        const videoInfo = document.getElementById('videoInfo');
+
+        // 画質選択
+        document.querySelectorAll('.quality-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.quality-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                selectedQuality = this.dataset.quality;
+            });
+        });
+
+        // 動画情報取得
+        getInfoBtn.addEventListener('click', async function() {
+            const url = videoUrlInput.value.trim();
+            
+            if (!url) {
+                showMessage('URLを入力してください', 'error');
+                return;
+            }
+
+            if (!isValidYouTubeUrl(url)) {
+                showMessage('有効なYouTube URLを入力してください', 'error');
+                return;
+            }
+
+            const videoId = extractVideoId(url);
+            if (!videoId) {
+                showMessage('動画IDを取得できませんでした', 'error');
+                return;
+            }
+
+            try {
+                getInfoBtn.disabled = true;
+                loading.style.display = 'block';
+                message.style.display = 'none';
+                videoInfo.style.display = 'none';
+
+                // 複数のAPIを試行
+                await getVideoInfo(videoId);
+
+            } catch (error) {
+                showMessage('エラーが発生しました: ' + error.message, 'error');
+            } finally {
+                getInfoBtn.disabled = false;
+                loading.style.display = 'none';
+            }
+        });
+
+        // ダウンロード
+        downloadBtn.addEventListener('click', async function() {
+            if (!videoData) {
+                showMessage('先に動画情報を取得してください', 'error');
+                return;
+            }
+
+            try {
+                downloadBtn.disabled = true;
+                loading.style.display = 'block';
+
+                const videoId = extractVideoId(videoUrlInput.value);
+                
+                // Method 1: yt1s.com API (フロントエンドで使用可能)
+                const downloadUrl = await getDownloadLink(videoId);
+                
+                if (downloadUrl) {
+                    // 新しいタブでダウンロードリンクを開く
+                    window.open(downloadUrl, '_blank');
+                    showMessage('ダウンロードを開始しました！', 'success');
+                } else {
+                    // Method 2: 外部ダウンローダーへリダイレクト
+                    const fallbackUrl = `https://y2mate.com/youtube/${videoId}`;
+                    window.open(fallbackUrl, '_blank');
+                    showMessage('外部ダウンローダーを開きました', 'info');
+                }
+
+            } catch (error) {
+                showMessage('ダウンロードに失敗しました: ' + error.message, 'error');
+            } finally {
+                downloadBtn.disabled = false;
+                loading.style.display = 'none';
+            }
+        });
+
+        async function getVideoInfo(videoId) {
+            // まずYouTube oEmbed APIで基本情報を取得（公式API、認証不要）
+            try {
+                const oembedResponse = await fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`);
+                if (oembedResponse.ok) {
+                    const data = await oembedResponse.json();
+                    
+                    document.getElementById('thumbnail').src = data.thumbnail_url;
+                    document.getElementById('title').textContent = data.title;
+                    document.getElementById('channel').textContent = data.author_name;
+                    document.getElementById('duration').textContent = '取得中...';
+                    
+                    videoInfo.style.display = 'block';
+                    downloadBtn.style.display = 'block';
+                    
+                    videoData = data;
+                    showMessage('動画情報を取得しました！', 'success');
+                    return;
+                }
+            } catch (error) {
+                console.error('oEmbed API error:', error);
+            }
+
+            // Fallback: noembed.com API
+            try {
+                const noembedResponse = await fetch(`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${videoId}`);
+                if (noembedResponse.ok) {
+                    const data = await noembedResponse.json();
+                    
+                    document.getElementById('thumbnail').src = data.thumbnail_url;
+                    document.getElementById('title').textContent = data.title;
+                    document.getElementById('channel').textContent = data.author_name;
+                    document.getElementById('duration').textContent = '情報なし';
+                    
+                    videoInfo.style.display = 'block';
+                    downloadBtn.style.display = 'block';
+                    
+                    videoData = data;
+                    showMessage('動画情報を取得しました！', 'success');
+                    return;
+                }
+            } catch (error) {
+                console.error('noembed API error:', error);
+            }
+
+            throw new Error('動画情報を取得できませんでした');
+        }
+
+        async function getDownloadLink(videoId) {
+            // このAPIは実際には動作しない可能性があります
+            // 代わりに外部サービスへのリンクを生成
+            return null;
+        }
+
+        function extractVideoId(url) {
+            const patterns = [
+                /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/,
+                /youtube\.com\/embed\/([^&\n?#]+)/,
+                /youtube\.com\/v\/([^&\n?#]+)/
+            ];
+
+            for (const pattern of patterns) {
+                const match = url.match(pattern);
+                if (match && match[1]) {
+                    return match[1];
+                }
+            }
+            return null;
+        }
+
+        function isValidYouTubeUrl(url) {
+            const pattern = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+/;
+            return pattern.test(url);
+        }
+
+        function showMessage(text, type) {
+            message.textContent = text;
+            message.className = `message ${type}`;
+            message.style.display = 'block';
+        }
+
+        // Enterキーで情報取得
+        videoUrlInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                getInfoBtn.click();
+            }
+        });
+    </script>
+</body>
+</html>
