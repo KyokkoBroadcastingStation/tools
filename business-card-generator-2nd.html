@@ -14,7 +14,7 @@
       }
 
       body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         min-height: 100vh;
         padding: 20px;
@@ -29,7 +29,7 @@
       header h1 {
         font-size: 32px;
         font-weight: 700;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
       }
 
       .container {
@@ -44,7 +44,7 @@
         background: white;
         padding: 30px;
         border-radius: 15px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
       }
 
       .container-title {
@@ -155,7 +155,7 @@
         border-radius: 6px;
         margin-bottom: 8px;
         font-size: 14px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       }
 
       .person-name {
@@ -215,8 +215,8 @@
         color: #333;
         position: relative;
         overflow: hidden;
-        font-family: 'Arial', sans-serif;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        font-family: "Arial", sans-serif;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         transform: scale(0.8);
         transition: all 0.3s ease;
       }
@@ -279,7 +279,7 @@
         color: #333;
         position: relative;
         overflow: hidden;
-        font-family: 'Arial', sans-serif;
+        font-family: "Arial", sans-serif;
       }
 
       .card-header {
@@ -365,12 +365,11 @@
     <header>
       <h1>名刺ジェネレーター</h1>
     </header>
-    
+
     <div class="container">
       <div class="input-section">
-
         <h1 class="container-title">個人情報入力</h1>
-        
+
         <div class="current-person">
           人数: <span id="personCount">0</span>/10
         </div>
@@ -396,25 +395,45 @@
             <input type="text" id="grade" placeholder="例：3年電気科" />
           </div>
 
-           <hr style="margin: 20px 0; border: none; border-top: 2px solid #e1e8ed;">
+          <hr
+            style="margin: 20px 0; border: none; border-top: 2px solid #e1e8ed"
+          />
 
           <h1 class="container-title">共通連絡先情報</h1>
 
-        <form id="commonForm">
-          <div class="form-group">
-            <label for="organization">組織名</label>
-            <input type="text" id="organization" value="北海道旭川工業高等学校 放送局 / KBS 旭工放送局" />
-          </div>
+          <form id="commonForm">
+            <div class="form-group">
+              <label for="organization">組織名</label>
+              <input
+                type="text"
+                id="organization"
+                value="北海道旭川工業高等学校 放送局 / KBS 旭工放送局"
+              />
+            </div>
 
-          <div class="form-group">
-            <label for="contact">連絡先情報（複数行入力可）</label>
-            <textarea id="contact" rows="6" style="width: 100%; padding: 10px; border: 2px solid #e1e8ed; border-radius: 8px; font-size: 14px; font-family: inherit; resize: vertical;">〒078-8804
+            <div class="form-group">
+              <label for="contact">連絡先情報（複数行入力可）</label>
+              <textarea
+                id="contact"
+                rows="6"
+                style="
+                  width: 100%;
+                  padding: 10px;
+                  border: 2px solid #e1e8ed;
+                  border-radius: 8px;
+                  font-size: 14px;
+                  font-family: inherit;
+                  resize: vertical;
+                "
+              >
+〒078-8804
 北海道旭川市緑が丘東4条1丁目1－1　2階 放送室
 E-mail:kbs.ahkc@gmail.com
 X(旧:Twitter):https://x.com/kbs_asahikawa
-http://www.kyokko.hokkaido-c.ed.jp/z20/r32</textarea>
-          </div>
-        </form>
+http://www.kyokko.hokkaido-c.ed.jp/z20/r32</textarea
+              >
+            </div>
+          </form>
 
           <button type="button" class="add-btn" onclick="addPerson()">
             スタッフを追加
@@ -435,8 +454,8 @@ http://www.kyokko.hokkaido-c.ed.jp/z20/r32</textarea>
         <div class="preview-card-container">
           <div class="preview-business-card" id="livePreviewCard"></div>
         </div>
-        <div class="person-list" id="personList" style="display: none;">
-          <h3 style="margin-bottom: 10px; color: #333;">登録済みスタッフ</h3>
+        <div class="person-list" id="personList" style="display: none">
+          <h3 style="margin-bottom: 10px; color: #333">登録済みスタッフ</h3>
           <div id="personItems"></div>
         </div>
       </div>
@@ -452,22 +471,29 @@ http://www.kyokko.hokkaido-c.ed.jp/z20/r32</textarea>
     <script>
       let staffList = [];
       let commonContactInfo = {}; // 共通連絡先情報を保存
-      
+
       function init() {
-  generateCardSlots();
-  saveCommonContactInfo(); // 初期値を保存
-  updateLivePreview();     // ← ここで必ずプレビューを描画
-  updateDisplay();
-  setupInputListeners();
+        generateCardSlots();
+        saveCommonContactInfo(); // 初期値を保存
+        updateLivePreview(); // ← ここで必ずプレビューを描画
+        updateDisplay();
+        setupInputListeners();
       }
 
       function setupInputListeners() {
-        const inputs = ['name', 'reading', 'department', 'grade', 'organization', 'contact'];
-        inputs.forEach(id => {
-          document.getElementById(id).addEventListener('input', () => {
+        const inputs = [
+          "name",
+          "reading",
+          "department",
+          "grade",
+          "organization",
+          "contact",
+        ];
+        inputs.forEach((id) => {
+          document.getElementById(id).addEventListener("input", () => {
             updateLivePreview();
             // 共通連絡先情報が変更されたら保存
-            if (['organization', 'contact'].includes(id)) {
+            if (["organization", "contact"].includes(id)) {
               saveCommonContactInfo();
             }
           });
@@ -476,37 +502,36 @@ http://www.kyokko.hokkaido-c.ed.jp/z20/r32</textarea>
 
       function saveCommonContactInfo() {
         commonContactInfo = {
-          organization: document.getElementById('organization').value.trim(),
-          contact: document.getElementById('contact').value.trim()
+          organization: document.getElementById("organization").value.trim(),
+          contact: document.getElementById("contact").value.trim(),
         };
       }
-function updateLivePreview() {
-  const name = document.getElementById('name').value.trim();
-  const reading = document.getElementById('reading').value.trim();
-  const department = document.getElementById('department').value.trim();
-  const grade = document.getElementById('grade').value.trim();
+      function updateLivePreview() {
+        const name = document.getElementById("name").value.trim();
+        const reading = document.getElementById("reading").value.trim();
+        const department = document.getElementById("department").value.trim();
+        const grade = document.getElementById("grade").value.trim();
 
-  const previewCard = document.getElementById('livePreviewCard');
-  
-  // ★ empty-card は使わず、常に preview-business-card
-  previewCard.className = 'preview-business-card';
-  previewCard.innerHTML = createCardContent({
-    name: name || '名前未入力',
-    reading: reading || '読み仮名未入力',
-    department: department || '部署未入力',
-    grade: grade || '学年・学科未入力',
-    ...commonContactInfo
-  });
-}
+        const previewCard = document.getElementById("livePreviewCard");
 
+        // ★ empty-card は使わず、常に preview-business-card
+        previewCard.className = "preview-business-card";
+        previewCard.innerHTML = createCardContent({
+          name: name || "名前未入力",
+          reading: reading || "読み仮名未入力",
+          department: department || "部署未入力",
+          grade: grade || "学年・学科未入力",
+          ...commonContactInfo,
+        });
+      }
 
       function generateCardSlots() {
-        const cardGrid = document.getElementById('cardGrid');
-        cardGrid.innerHTML = '';
-        
+        const cardGrid = document.getElementById("cardGrid");
+        cardGrid.innerHTML = "";
+
         for (let i = 0; i < 10; i++) {
-          const slot = document.createElement('div');
-          slot.className = 'card-slot';
+          const slot = document.createElement("div");
+          slot.className = "card-slot";
           slot.id = `slot-${i}`;
           cardGrid.appendChild(slot);
         }
@@ -514,17 +539,17 @@ function updateLivePreview() {
 
       function addPerson() {
         if (staffList.length >= 10) {
-          alert('最大10人まで登録できます。');
+          alert("最大10人まで登録できます。");
           return;
         }
 
-        const name = document.getElementById('name').value.trim();
-        const reading = document.getElementById('reading').value.trim();
-        const department = document.getElementById('department').value.trim();
-        const grade = document.getElementById('grade').value.trim();
+        const name = document.getElementById("name").value.trim();
+        const reading = document.getElementById("reading").value.trim();
+        const department = document.getElementById("department").value.trim();
+        const grade = document.getElementById("grade").value.trim();
 
         if (!name || !reading || !department || !grade) {
-          alert('名前、読み仮名、部署、学年・学科は必須項目です。');
+          alert("名前、読み仮名、部署、学年・学科は必須項目です。");
           return;
         }
 
@@ -536,7 +561,7 @@ function updateLivePreview() {
           reading: reading,
           department: department,
           grade: grade,
-          ...commonContactInfo // 共通連絡先情報を追加
+          ...commonContactInfo, // 共通連絡先情報を追加
         };
 
         staffList.push(staff);
@@ -545,15 +570,15 @@ function updateLivePreview() {
       }
 
       function deletePerson(id) {
-        staffList = staffList.filter(staff => staff.id !== id);
+        staffList = staffList.filter((staff) => staff.id !== id);
         updateDisplay();
       }
 
       function clearForm() {
-        document.getElementById('name').value = '';
-        document.getElementById('reading').value = '';
-        document.getElementById('department').value = '';
-        document.getElementById('grade').value = '';
+        document.getElementById("name").value = "";
+        document.getElementById("reading").value = "";
+        document.getElementById("department").value = "";
+        document.getElementById("grade").value = "";
         // 連絡先情報はクリアしない（デフォルト値を保持）
       }
 
@@ -571,24 +596,24 @@ function updateLivePreview() {
       }
 
       function updatePersonCount() {
-        document.getElementById('personCount').textContent = staffList.length;
+        document.getElementById("personCount").textContent = staffList.length;
       }
 
       function updatePersonList() {
-        const personList = document.getElementById('personList');
-        const personItems = document.getElementById('personItems');
-        
+        const personList = document.getElementById("personList");
+        const personItems = document.getElementById("personItems");
+
         if (staffList.length === 0) {
-          personList.style.display = 'none';
+          personList.style.display = "none";
           return;
         }
 
-        personList.style.display = 'block';
-        personItems.innerHTML = '';
+        personList.style.display = "block";
+        personItems.innerHTML = "";
 
-        staffList.forEach(staff => {
-          const item = document.createElement('div');
-          item.className = 'person-item';
+        staffList.forEach((staff) => {
+          const item = document.createElement("div");
+          item.className = "person-item";
           item.innerHTML = `
             <div>
               <div class="person-name">${staff.name}</div>
@@ -603,19 +628,23 @@ function updateLivePreview() {
       function updateCardGrid() {
         for (let i = 0; i < 10; i++) {
           const slot = document.getElementById(`slot-${i}`);
-          
+
           if (i < staffList.length) {
             const staff = staffList[i];
             slot.innerHTML = createBusinessCard(staff);
           } else {
-            slot.innerHTML = '';
+            slot.innerHTML = "";
           }
         }
       }
 
       function createCardContent(staff) {
-        const contactLines = (staff.contact || '').split('\n').map(line => line.trim()).filter(line => line).join('<br>');
-        
+        const contactLines = (staff.contact || "")
+          .split("\n")
+          .map((line) => line.trim())
+          .filter((line) => line)
+          .join("<br>");
+
         return `
           <div class="card-header">
             <div class="card-department">${staff.department}</div>
@@ -626,8 +655,14 @@ function updateLivePreview() {
             <div class="card-reading">${staff.reading}</div>
           </div>
           <div class="card-footer">
-            ${staff.organization || '北海道旭川工業高等学校 放送局 / KBS 旭工放送局'}<br>
-            ${contactLines || '〒078-8804<br>北海道旭川市緑が丘東4条1丁目1－1　2階 放送室<br>E-mail:kbs.ahkc@gmail.com<br>X(旧:Twitter):https://x.com/kbs_asahikawa<br>http://www.kyokko.hokkaido-c.ed.jp/z20/r32'}
+            ${
+              staff.organization ||
+              "北海道旭川工業高等学校 放送局 / KBS 旭工放送局"
+            }<br>
+            ${
+              contactLines ||
+              "〒078-8804<br>北海道旭川市緑が丘東4条1丁目1－1　2階 放送室<br>E-mail:kbs.ahkc@gmail.com<br>X(旧:Twitter):https://x.com/kbs_asahikawa<br>http://www.kyokko.hokkaido-c.ed.jp/z20/r32"
+            }
           </div>
           <img class="card-logo" src="img/logo.png" alt="Logo" />
         `;
@@ -639,11 +674,11 @@ function updateLivePreview() {
 
       function downloadA4PDF() {
         if (staffList.length === 0) {
-          alert('スタッフを追加してからPDFをダウンロードしてください。');
+          alert("スタッフを追加してからPDFをダウンロードしてください。");
           return;
         }
 
-        const pdfContainer = document.createElement('div');
+        const pdfContainer = document.createElement("div");
         pdfContainer.style.cssText = `
           position: fixed;
           top: -9999px;
@@ -653,8 +688,8 @@ function updateLivePreview() {
           background: white;
           font-family: Arial, sans-serif;
         `;
-        
-        const pdfCardGrid = document.createElement('div');
+
+        const pdfCardGrid = document.createElement("div");
         pdfCardGrid.style.cssText = `
           position: absolute;
           top: 10mm;
@@ -667,87 +702,91 @@ function updateLivePreview() {
           grid-template-rows: repeat(5, 55mm);
           grid-gap: 0;
         `;
-        
+
         for (let i = 0; i < 10; i++) {
-          const cardSlot = document.createElement('div');
+          const cardSlot = document.createElement("div");
           cardSlot.style.cssText = `
             position: relative;
             width: 92mm;
             height: 55mm;
             border: 1px dashed #e9bb51;
           `;
-          
+
           if (i % 2 === 1) {
-            cardSlot.style.borderLeft = 'none';
+            cardSlot.style.borderLeft = "none";
           }
           if (i >= 2) {
-            cardSlot.style.borderTop = 'none';
+            cardSlot.style.borderTop = "none";
           }
-          
+
           if (i < staffList.length) {
             cardSlot.innerHTML = createBusinessCard(staffList[i]);
           }
-          
+
           pdfCardGrid.appendChild(cardSlot);
         }
-        
+
         pdfContainer.appendChild(pdfCardGrid);
         document.body.appendChild(pdfContainer);
 
         const imagesToLoad = [];
-        const cardLogos = pdfContainer.querySelectorAll('.card-logo');
+        const cardLogos = pdfContainer.querySelectorAll(".card-logo");
 
-        cardLogos.forEach(logo => {
+        cardLogos.forEach((logo) => {
           if (!logo.complete) {
-            imagesToLoad.push(new Promise((resolve) => {
-              logo.onload = resolve;
-              logo.onerror = resolve;
-            }));
+            imagesToLoad.push(
+              new Promise((resolve) => {
+                logo.onload = resolve;
+                logo.onerror = resolve;
+              })
+            );
           }
         });
-        
+
         Promise.all(imagesToLoad).then(() => {
           setTimeout(() => {
             html2canvas(pdfContainer, {
-              backgroundColor: 'white',
+              backgroundColor: "white",
               scale: 2,
               useCORS: true,
               allowTaint: false,
               width: 794,
               height: 1123,
-              logging: false
+              logging: false,
             })
-            .then(function(canvas) {
-              const { jsPDF } = window.jspdf;
-              const pdf = new jsPDF({
-                orientation: 'portrait',
-                unit: 'mm',
-                format: 'a4'
-              });
+              .then(function (canvas) {
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF({
+                  orientation: "portrait",
+                  unit: "mm",
+                  format: "a4",
+                });
 
-              const imgData = canvas.toDataURL('image/png', 1.0);
-              pdf.addImage(imgData, 'PNG', 0, 0, 210, 297);
-              
-              const filename = `business-cards-${new Date().toISOString().split('T')[0]}.pdf`;
-              pdf.save(filename);
-              
-              document.body.removeChild(pdfContainer);
-            })
-            .catch(function(error) {
-              console.error('PDF生成エラー:', error);
-              alert('PDFの生成に失敗しました。再度お試しください。');
-              
-              if (document.body.contains(pdfContainer)) {
+                const imgData = canvas.toDataURL("image/png", 1.0);
+                pdf.addImage(imgData, "PNG", 0, 0, 210, 297);
+
+                const filename = `business-cards-${
+                  new Date().toISOString().split("T")[0]
+                }.pdf`;
+                pdf.save(filename);
+
                 document.body.removeChild(pdfContainer);
-              }
-            });
+              })
+              .catch(function (error) {
+                console.error("PDF生成エラー:", error);
+                alert("PDFの生成に失敗しました。再度お試しください。");
+
+                if (document.body.contains(pdfContainer)) {
+                  document.body.removeChild(pdfContainer);
+                }
+              });
           }, 300);
         });
       }
 
       init();
     </script>
-    
+
     <footer>
       <p class="footer-copy">&copy; KBS Kyokko Broadcasting Station</p>
     </footer>
