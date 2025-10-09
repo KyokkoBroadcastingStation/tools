@@ -211,7 +211,7 @@
         height: 55mm;
         background: white;
         border-radius: 4px;
-        padding: 8mm 5mm;
+        padding: 3mm 5mm;
         color: #333;
         position: relative;
         overflow: hidden;
@@ -231,7 +231,7 @@
         font-size: 12px;
         text-align: center;
         line-height: 1.4;
-        padding: 5mm;
+        padding: 1mm;
       }
 
       .a4-container {
@@ -292,7 +292,7 @@
       .card-department {
         font-size: 8px;
         color: #666;
-        margin-bottom: 1mm;
+        margin-bottom: 0;
       }
 
       .card-grade {
@@ -301,15 +301,14 @@
       }
 
       .card-name-section {
-        text-align: center;
-        margin: 8mm 0 6mm 0;
+        margin: 6mm 0 4mm 0;
       }
 
       .card-name {
         font-size: 28px;
         font-weight: 700;
         letter-spacing: 2px;
-        margin-bottom: 2mm;
+        margin-bottom: 0mm;
         color: #000;
       }
 
@@ -654,11 +653,11 @@ http://www.kyokko.hokkaido-c.ed.jp/z20/r32</textarea
             <div class="card-name">${staff.name}</div>
             <div class="card-reading">${staff.reading}</div>
           </div>
-          <div class="card-footer">
-            ${
+                      ${
               staff.organization ||
               "北海道旭川工業高等学校 放送局 / KBS 旭工放送局"
-            }<br>
+            }
+          <div class="card-footer">
             ${
               contactLines ||
               "〒078-8804<br>北海道旭川市緑が丘東4条1丁目1－1　2階 放送室<br>E-mail:kbs.ahkc@gmail.com<br>X(旧:Twitter):https://x.com/kbs_asahikawa<br>http://www.kyokko.hokkaido-c.ed.jp/z20/r32"
