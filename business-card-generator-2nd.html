@@ -275,7 +275,7 @@
         height: 55mm;
         background: white;
         border-radius: 2mm;
-        padding: 8mm 5mm;
+        padding: 3mm 5mm;
         color: #333;
         position: relative;
         overflow: hidden;
@@ -318,20 +318,25 @@
         letter-spacing: 1px;
       }
 
+      .card-company-name{
+        font-size: 10px;
+        margin-bottom: 1mm;
+      }
+
       .card-footer {
         font-size: 7px;
         line-height: 1.5;
         color: #333;
         border-top: 1px solid #ddd;
-        padding-top: 2mm;
+        padding-top: 1mm;
       }
 
       .card-logo {
         position: absolute;
-        bottom: 3mm;
-        right: 5mm;
-        height: 12mm;
-        width: auto;
+        bottom: 1mm;
+        right: 0;
+        height: auto;
+        width: 20mm;
       }
 
       footer {
@@ -653,10 +658,12 @@ http://www.kyokko.hokkaido-c.ed.jp/z20/r32</textarea
             <div class="card-name">${staff.name}</div>
             <div class="card-reading">${staff.reading}</div>
           </div>
+          <div class="card-company-name">
                       ${
               staff.organization ||
               "北海道旭川工業高等学校 放送局 / KBS 旭工放送局"
             }
+           </div>
           <div class="card-footer">
             ${
               contactLines ||
