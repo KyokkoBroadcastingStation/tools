@@ -14,6 +14,49 @@
       body {
         font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
         background-color: #f5f5f5;
+        position: relative;
+      }
+
+      #dropOverlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(52, 152, 219, 0.9);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        pointer-events: none;
+      }
+
+      #dropOverlay.active {
+        display: flex;
+      }
+
+      .drop-message {
+        background-color: white;
+        padding: 40px 60px;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        text-align: center;
+      }
+
+      .drop-message h2 {
+        color: #2c3e50;
+        font-size: 2rem;
+        margin-bottom: 20px;
+      }
+
+      .drop-message p {
+        color: #7f8c8d;
+        font-size: 1.2rem;
+      }
+
+      .drop-icon {
+        font-size: 4rem;
+        margin-bottom: 20px;
       }
 
       header {
@@ -352,6 +395,14 @@
   </head>
 
   <body>
+    <div id="dropOverlay">
+      <div class="drop-message">
+        <div class="drop-icon">📁</div>
+        <h2>ここに画像をドロップ</h2>
+        <p>PNG, JPG, GIF などの画像ファイルに対応</p>
+      </div>
+    </div>
+
     <header>
       <a href="/tools">
         <h1>KBS情報通信ネットワーク</h1>
@@ -486,6 +537,7 @@
       const previewCircle = document.getElementById("previewCircle");
       const undoBtn = document.getElementById("undoBtn");
       const redoBtn = document.getElementById("redoBtn");
+      const dropOverlay = document.getElementById("dropOverlay");
 
       let baseImage = new Image();
       let overlayImage = new Image();
@@ -505,6 +557,49 @@
       let pendingRender = false;
 
       overlayImage.src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";
+
+      // 画像を読み込む共通関数
+      function loadImageFile(file) {
+        if (file && file.type.startsWith('image/')) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            baseImage.src = e.target.result;
+          };
+          reader.readAsDataURL(file);
+        } else {
+          alert('画像ファイルを選択してください');
+        }
+      }
+
+      // ドラッグアンドドロップ機能
+      // ドラッグオーバー時の処理
+      document.body.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropOverlay.classList.add('active');
+      });
+
+      // ドラッグが離れた時の処理
+      document.body.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        // body要素から完全に離れた時のみオーバーレイを非表示
+        if (e.target === document.body) {
+          dropOverlay.classList.remove('active');
+        }
+      });
+
+      // ドロップ時の処理
+      document.body.addEventListener('drop', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropOverlay.classList.remove('active');
+        
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+          loadImageFile(files[0]);
+        }
+      });
 
       // 履歴を保存する関数
       function saveHistory() {
@@ -918,16 +1013,16 @@
         const maskImageData = maskCtx.getImageData(0, 0, maskCanvas.width, maskCanvas.height);
         const currentImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
         const currentData = currentImageData.data;
-        const blurredData = blurredImageCache.data;
+        const blurredDataArray = blurredData.data;
         const maskData = maskImageData.data;
 
         const len = currentData.length;
         for (let i = 0; i < len; i += 4) {
           const maskValue = maskData[i] / 255;
           if (maskValue > 0.01) {
-            currentData[i] = blurredData[i];
-            currentData[i + 1] = blurredData[i + 1];
-            currentData[i + 2] = blurredData[i + 2];
+            currentData[i] = blurredDataArray[i];
+            currentData[i + 1] = blurredDataArray[i + 1];
+            currentData[i + 2] = blurredDataArray[i + 2];
           }
         }
 
