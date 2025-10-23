@@ -3,8 +3,262 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="style/main-style.css" />
     <title>画像加工ツール 丨 KBS情報通信ネットワーク</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f5f5f5;
+      }
+
+      header {
+        background-color: #2c3e50;
+        padding: 1rem;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      }
+
+      header h1 {
+        color: white;
+        text-align: center;
+        font-size: 1.5rem;
+      }
+
+      header a {
+        text-decoration: none;
+      }
+
+      main {
+        padding: 40px 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .title {
+        color: #2c3e50;
+        margin-bottom: 30px;
+        text-align: center;
+      }
+
+      .container {
+        text-align: center;
+        width: 100%;
+        max-width: 1200px;
+      }
+
+      .tool-bar,
+      .support {
+        width: 90%;
+        max-width: 800px;
+        padding: 20px;
+        border-radius: 10px;
+        margin: 20px auto;
+        box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.3);
+        background-color: white;
+      }
+
+      .support h3 {
+        color: #2c3e50;
+        margin-bottom: 15px;
+      }
+
+      .support p {
+        color: #555;
+        line-height: 1.6;
+      }
+
+      #uploadImage {
+        margin: 10px;
+        padding: 10px;
+        border: 2px solid #3498db;
+        border-radius: 5px;
+        background-color: white;
+        cursor: pointer;
+      }
+
+      .resolution-buttons {
+        margin: 15px 0;
+      }
+
+      .resolution-buttons label {
+        font-weight: bold;
+        margin-right: 10px;
+        color: #2c3e50;
+      }
+
+      .resolution-buttons button {
+        margin: 5px;
+        padding: 8px 16px;
+        background-color: #3498db;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+
+      .resolution-buttons button:hover {
+        background-color: #2980b9;
+      }
+
+      .blur-controls,
+      .brush-controls,
+      .slider-container {
+        margin: 15px 0;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+      }
+
+      .slider-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .slider-container label {
+        font-weight: bold;
+        color: #2c3e50;
+      }
+
+      .blur-controls div {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        margin-top: 10px;
+        flex-wrap: wrap;
+      }
+
+      .blur-controls label {
+        font-weight: bold;
+        color: #2c3e50;
+      }
+
+      .brush-controls {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        align-items: center;
+      }
+
+      .brush-controls > div {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+        max-width: 400px;
+        justify-content: space-between;
+      }
+
+      .brush-tool-selector {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+
+      .brush-tool-btn {
+        padding: 10px 20px;
+        border: 2px solid #3498db;
+        background-color: white;
+        color: #3498db;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-weight: bold;
+      }
+
+      .brush-tool-btn.active {
+        background-color: #3498db;
+        color: white;
+      }
+
+      .brush-tool-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      }
+
+      .eraser-btn {
+        border-color: #e74c3c;
+        color: #e74c3c;
+      }
+
+      .eraser-btn.active {
+        background-color: #e74c3c;
+        color: white;
+      }
+
+      #clearBrushBlur {
+        background-color: #ff6b6b;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background-color 0.3s;
+      }
+
+      #clearBrushBlur:hover {
+        background-color: #ff5252;
+      }
+
+      #downloadAutoBtn,
+      #downloadDialogBtn {
+        margin: 10px;
+        padding: 12px 24px;
+        background-color: #27ae60;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background-color 0.3s;
+      }
+
+      #downloadAutoBtn:hover,
+      #downloadDialogBtn:hover {
+        background-color: #229954;
+      }
+
+      #imageContainer {
+        position: relative;
+        width: 90%;
+        max-width: 800px;
+        height: auto;
+        overflow: auto;
+        border: 2px solid #ccc;
+        margin: 20px auto;
+        background-color: #eaeaea;
+        border-radius: 5px;
+      }
+
+      canvas {
+        width: 100%;
+        height: auto;
+        display: block;
+      }
+
+      canvas.brush-mode {
+        cursor: crosshair;
+      }
+
+      canvas.eraser-mode {
+        cursor: grab;
+      }
+
+      input[type="range"] {
+        width: 200px;
+        margin: 0 10px;
+      }
+
+    </style>
   </head>
 
   <body>
@@ -68,6 +322,11 @@
           </div>
 
           <div class="brush-controls" id="brushControls" style="display: none">
+            <div class="brush-tool-selector">
+              <button class="brush-tool-btn active" id="brushToolBtn">ぼかしブラシ</button>
+              <button class="brush-tool-btn eraser-btn" id="eraserToolBtn">消しゴム</button>
+            </div>
+
             <div>
               <label for="brushSize">ブラシサイズ:</label>
               <input
@@ -80,7 +339,7 @@
               <span id="brushSizeValue">60</span>px
             </div>
 
-            <div>
+            <div id="blurStrengthControl">
               <label for="brushBlurStrength">ぼかし強度:</label>
               <input
                 type="range"
@@ -109,149 +368,58 @@
       <p class="footer-copy">&copy; KBS Kyokko Broadcasting Station</p>
     </footer>
 
-    <style>
-      main {
-        padding: 40px 0;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-      }
-
-      * {
-        box-sizing: border-box;
-      }
-
-      .container {
-        text-align: center;
-      }
-      .tool-bar,
-      .support {
-        width: 90%;
-        padding: 10px;
-        border-radius: 10px;
-        margin: 20px auto;
-        box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.3);
-      }
-
-      #uploadImage,
-      #blurSlider {
-        margin: 10px;
-      }
-
-      .blur-controls,
-      .brush-controls,
-      .slider-container {
-        margin: 15px 0;
-        padding: 10px;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        background-color: #f9f9f9;
-      }
-
-      .slider-container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 10px;
-      }
-
-      .slider-container label {
-        font-weight: bold;
-      }
-
-      .blur-controls div {
-        display: flex;
-        gap: 15px;
-        justify-content: center;
-        margin-top: 10px;
-      }
-
-      .brush-controls {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        align-items: center;
-      }
-
-      .brush-controls > div {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-      }
-
-      #clearBrushBlur {
-        background-color: #ff6b6b;
-        color: white;
-        border: none;
-        padding: 5px 15px;
-        border-radius: 3px;
-        cursor: pointer;
-      }
-
-      #clearBrushBlur:hover {
-        background-color: #ff5252;
-      }
-
-      #imageContainer {
-        position: relative;
-        width: 80vw;
-        max-width: 800px;
-        height: auto;
-        overflow: auto;
-        border: 1px solid #ccc;
-        margin: 20px auto;
-        background-color: #eaeaea;
-        margin: 5vh 0;
-      }
-
-      canvas {
-        width: 100%;
-        height: auto;
-      }
-
-      canvas.brush-mode {
-        cursor: crosshair;
-      }
-    </style>
-
     <script>
       const canvas = document.getElementById("canvas");
       const ctx = canvas.getContext("2d");
       const uploadImage = document.getElementById("uploadImage");
       const blurSlider = document.getElementById("blurSlider");
-      const downloadBtn = document.getElementById("downloadBtn");
-      const blurModeRadios = document.querySelectorAll(
-        'input[name="blurMode"]'
-      );
+      const blurModeRadios = document.querySelectorAll('input[name="blurMode"]');
       const brushControls = document.getElementById("brushControls");
       const globalBlurControls = document.getElementById("globalBlurControls");
       const blurValue = document.getElementById("blurValue");
       const brushSize = document.getElementById("brushSize");
       const brushSizeValue = document.getElementById("brushSizeValue");
       const brushBlurStrength = document.getElementById("brushBlurStrength");
-      const brushBlurStrengthValue = document.getElementById(
-        "brushBlurStrengthValue"
-      );
+      const brushBlurStrengthValue = document.getElementById("brushBlurStrengthValue");
       const clearBrushBlurBtn = document.getElementById("clearBrushBlur");
+      const brushToolBtn = document.getElementById("brushToolBtn");
+      const eraserToolBtn = document.getElementById("eraserToolBtn");
+      const blurStrengthControl = document.getElementById("blurStrengthControl");
 
       let baseImage = new Image();
       let overlayImage = new Image();
       let isDrawing = false;
       let currentBlurMode = "off";
+      let currentBrushTool = "blur"; // "blur" or "eraser"
       let lastX = 0;
       let lastY = 0;
       let brushStrokes = [];
 
-      // パフォーマンス最適化のための変数
       let blurredImageCache = null;
       let maskCanvas = null;
       let maskCtx = null;
       let renderTimeout = null;
       let pendingRender = false;
 
-      overlayImage.src = "img/overlay.png"; // 初期透過画像
+      overlayImage.src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";
 
-      // 画像選択イベント
+      // ブラシツール切り替え
+      brushToolBtn.addEventListener("click", () => {
+        currentBrushTool = "blur";
+        brushToolBtn.classList.add("active");
+        eraserToolBtn.classList.remove("active");
+        blurStrengthControl.style.display = "flex";
+        canvas.className = "brush-mode";
+      });
+
+      eraserToolBtn.addEventListener("click", () => {
+        currentBrushTool = "eraser";
+        eraserToolBtn.classList.add("active");
+        brushToolBtn.classList.remove("active");
+        blurStrengthControl.style.display = "none";
+        canvas.className = "eraser-mode";
+      });
+
       uploadImage.addEventListener("change", (event) => {
         const file = event.target.files[0];
         if (file) {
@@ -263,7 +431,6 @@
         }
       });
 
-      // ベース画像の読み込み完了イベント
       baseImage.onload = () => {
         resizeCanvas(baseImage);
         brushStrokes = [];
@@ -272,7 +439,6 @@
         drawImages();
       };
 
-      // マスクキャンバスを初期化（再利用のため）
       function initializeMaskCanvas() {
         if (!maskCanvas) {
           maskCanvas = document.createElement("canvas");
@@ -282,67 +448,57 @@
         maskCanvas.height = canvas.height;
       }
 
-      // デバウンス付きレンダリング関数
       function scheduleRender() {
         if (pendingRender) return;
-
         pendingRender = true;
         if (renderTimeout) {
           clearTimeout(renderTimeout);
         }
-
         renderTimeout = setTimeout(() => {
           drawImages();
           pendingRender = false;
-        }, 16); // 約60FPS
+        }, 16);
       }
 
-      // スライダーでぼかしを調整
       blurSlider.addEventListener("input", (e) => {
         blurValue.textContent = e.target.value;
         scheduleRender();
       });
 
-      // ぼかしモード切り替え
       blurModeRadios.forEach((radio) => {
         radio.addEventListener("change", (e) => {
           currentBlurMode = e.target.value;
+          brushControls.style.display = currentBlurMode === "brush" ? "block" : "none";
+          globalBlurControls.style.display = currentBlurMode === "all" ? "block" : "none";
+          
+          if (currentBlurMode === "brush") {
+            canvas.className = currentBrushTool === "eraser" ? "eraser-mode" : "brush-mode";
+          } else {
+            canvas.className = "";
+          }
 
-          // UIの表示切り替え
-          brushControls.style.display =
-            currentBlurMode === "brush" ? "block" : "none";
-          globalBlurControls.style.display =
-            currentBlurMode === "all" ? "block" : "none";
-          canvas.className = currentBlurMode === "brush" ? "brush-mode" : "";
-
-          // キャッシュをクリア
           if (currentBlurMode !== "brush") {
             blurredImageCache = null;
           }
-
           drawImages();
         });
       });
 
-      // ブラシサイズとぼかし強度の表示更新（レンダリングはトリガーしない）
       brushSize.addEventListener("input", (e) => {
         brushSizeValue.textContent = e.target.value;
       });
 
       brushBlurStrength.addEventListener("input", (e) => {
         brushBlurStrengthValue.textContent = e.target.value;
-        // ぼかし強度が変更されたらキャッシュをクリア
         blurredImageCache = null;
         scheduleRender();
       });
 
-      // ぼかしリセット
       clearBrushBlurBtn.addEventListener("click", () => {
         brushStrokes = [];
         drawImages();
       });
 
-      // マウスイベント（ブラシぼかし用）
       canvas.addEventListener("mousedown", startDrawing);
       canvas.addEventListener("mousemove", draw);
       canvas.addEventListener("mouseup", stopDrawing);
@@ -352,7 +508,6 @@
         const rect = canvas.getBoundingClientRect();
         const scaleX = canvas.width / rect.width;
         const scaleY = canvas.height / rect.height;
-
         return {
           x: (e.clientX - rect.left) * scaleX,
           y: (e.clientY - rect.top) * scaleY,
@@ -361,98 +516,28 @@
 
       function startDrawing(e) {
         if (currentBlurMode !== "brush" || !baseImage.src) return;
-
         e.preventDefault();
         isDrawing = true;
-
         const pos = getMousePos(e);
         lastX = pos.x;
         lastY = pos.y;
 
-        // 新しいストロークを開始
-        const newStroke = [
-          {
+        const newStroke = {
+          tool: currentBrushTool,
+          points: [{
             x: pos.x,
             y: pos.y,
             size: parseInt(brushSize.value),
-          },
-        ];
+          }]
+        };
         brushStrokes.push(newStroke);
-
         scheduleRender();
       }
 
       function draw(e) {
         if (!isDrawing || currentBlurMode !== "brush") return;
-
         e.preventDefault();
         const pos = getMousePos(e);
-
-        // 現在のストロークに点を追加
-        const currentStroke = brushStrokes[brushStrokes.length - 1];
-
-        // 前の点から現在の点まで補間（間隔を調整してパフォーマンス向上）
-        const distance = Math.sqrt(
-          Math.pow(pos.x - lastX, 2) + Math.pow(pos.y - lastY, 2)
-        );
-        const steps = Math.max(1, Math.ceil(distance / 5)); // 5px間隔に変更
-
-        for (let i = 1; i <= steps; i++) {
-          const t = i / steps;
-          const interpX = lastX + (pos.x - lastX) * t;
-          const interpY = lastY + (pos.y - lastY) * t;
-
-          currentStroke.push({
-            x: interpX,
-            y: interpY,
-            size: parseInt(brushSize.value),
-          });
-        }
-
-        lastX = pos.x;
-        lastY = pos.y;
-
-        scheduleRender();
-      }
-
-      // タッチイベント対応（iPhoneやiPad用）
-      canvas.addEventListener("touchstart", handleTouchStart, {
-        passive: false,
-      });
-      canvas.addEventListener("touchmove", handleTouchMove, { passive: false });
-      canvas.addEventListener("touchend", stopDrawing);
-      canvas.addEventListener("touchcancel", stopDrawing);
-
-      function handleTouchStart(e) {
-        if (currentBlurMode !== "brush" || !baseImage.src) return;
-
-        e.preventDefault();
-        const touch = e.touches[0];
-        const pos = getTouchPos(touch);
-
-        isDrawing = true;
-        lastX = pos.x;
-        lastY = pos.y;
-
-        const newStroke = [
-          {
-            x: pos.x,
-            y: pos.y,
-            size: parseInt(brushSize.value),
-          },
-        ];
-        brushStrokes.push(newStroke);
-
-        scheduleRender();
-      }
-
-      function handleTouchMove(e) {
-        if (!isDrawing || currentBlurMode !== "brush") return;
-
-        e.preventDefault();
-        const touch = e.touches[0];
-        const pos = getTouchPos(touch);
-
         const currentStroke = brushStrokes[brushStrokes.length - 1];
 
         const distance = Math.sqrt(
@@ -464,8 +549,7 @@
           const t = i / steps;
           const interpX = lastX + (pos.x - lastX) * t;
           const interpY = lastY + (pos.y - lastY) * t;
-
-          currentStroke.push({
+          currentStroke.points.push({
             x: interpX,
             y: interpY,
             size: parseInt(brushSize.value),
@@ -474,7 +558,60 @@
 
         lastX = pos.x;
         lastY = pos.y;
+        scheduleRender();
+      }
 
+      canvas.addEventListener("touchstart", handleTouchStart, { passive: false });
+      canvas.addEventListener("touchmove", handleTouchMove, { passive: false });
+      canvas.addEventListener("touchend", stopDrawing);
+      canvas.addEventListener("touchcancel", stopDrawing);
+
+      function handleTouchStart(e) {
+        if (currentBlurMode !== "brush" || !baseImage.src) return;
+        e.preventDefault();
+        const touch = e.touches[0];
+        const pos = getTouchPos(touch);
+        isDrawing = true;
+        lastX = pos.x;
+        lastY = pos.y;
+
+        const newStroke = {
+          tool: currentBrushTool,
+          points: [{
+            x: pos.x,
+            y: pos.y,
+            size: parseInt(brushSize.value),
+          }]
+        };
+        brushStrokes.push(newStroke);
+        scheduleRender();
+      }
+
+      function handleTouchMove(e) {
+        if (!isDrawing || currentBlurMode !== "brush") return;
+        e.preventDefault();
+        const touch = e.touches[0];
+        const pos = getTouchPos(touch);
+        const currentStroke = brushStrokes[brushStrokes.length - 1];
+
+        const distance = Math.sqrt(
+          Math.pow(pos.x - lastX, 2) + Math.pow(pos.y - lastY, 2)
+        );
+        const steps = Math.max(1, Math.ceil(distance / 5));
+
+        for (let i = 1; i <= steps; i++) {
+          const t = i / steps;
+          const interpX = lastX + (pos.x - lastX) * t;
+          const interpY = lastY + (pos.y - lastY) * t;
+          currentStroke.points.push({
+            x: interpX,
+            y: interpY,
+            size: parseInt(brushSize.value),
+          });
+        }
+
+        lastX = pos.x;
+        lastY = pos.y;
         scheduleRender();
       }
 
@@ -482,7 +619,6 @@
         const rect = canvas.getBoundingClientRect();
         const scaleX = canvas.width / rect.width;
         const scaleY = canvas.height / rect.height;
-
         return {
           x: (touch.clientX - rect.left) * scaleX,
           y: (touch.clientY - rect.top) * scaleY,
@@ -493,10 +629,8 @@
         isDrawing = false;
       }
 
-      // 解像度変更関数
       function changeResolution(width, height) {
         if (!baseImage.src) return;
-
         const aspectRatio = baseImage.width / baseImage.height;
         if (aspectRatio > 1) {
           canvas.width = width;
@@ -505,144 +639,100 @@
           canvas.height = height;
           canvas.width = height * aspectRatio;
         }
-
-        // キャッシュとマスクキャンバスをリセット
         brushStrokes = [];
         blurredImageCache = null;
         initializeMaskCanvas();
         drawImages();
       }
 
-      // 画像を描画する関数（最適化済み）
       function drawImages() {
         if (!baseImage.src) return;
-
-        // キャンバスをクリア
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         if (currentBlurMode === "off") {
-          // ぼかしなし - 元画像をそのまま描画
           ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
         } else if (currentBlurMode === "all") {
-          // 全体ぼかし - スライダーの値を適用
           ctx.filter = `blur(${blurSlider.value}px)`;
           ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
           ctx.filter = "none";
         } else if (currentBlurMode === "brush") {
-          // ブラシぼかし - まず元画像を描画
           ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
-
-          // ブラシストロークがある場合のみ追加処理
           if (brushStrokes.length > 0) {
             applyBrushBlurOptimized();
           }
         }
 
-        // 透過画像を右下に配置
         ctx.filter = "none";
-        const overlayX = canvas.width - overlayImage.width; // 右端に配置
-        const overlayY = canvas.height - overlayImage.height; // 下端に配置
+        const overlayX = canvas.width - overlayImage.width;
+        const overlayY = canvas.height - overlayImage.height;
         ctx.drawImage(overlayImage, overlayX, overlayY);
       }
 
-      // 最適化されたブラシぼかし適用関数
       function applyBrushBlurOptimized() {
-        // ぼかし画像をキャッシュから取得または生成
         if (!blurredImageCache) {
           const blurCanvas = document.createElement("canvas");
           blurCanvas.width = canvas.width;
           blurCanvas.height = canvas.height;
           const blurCtx = blurCanvas.getContext("2d");
-
           const totalBlur = parseInt(brushBlurStrength.value);
           blurCtx.filter = `blur(${totalBlur}px)`;
           blurCtx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
           blurCtx.filter = "none";
-
-          blurredImageCache = blurCtx.getImageData(
-            0,
-            0,
-            canvas.width,
-            canvas.height
-          );
+          blurredImageCache = blurCtx.getImageData(0, 0, canvas.width, canvas.height);
         }
 
-        // マスクをクリアして再描画
         maskCtx.fillStyle = "black";
         maskCtx.fillRect(0, 0, maskCanvas.width, maskCanvas.height);
-
         maskCtx.globalCompositeOperation = "source-over";
-        maskCtx.fillStyle = "white";
-        maskCtx.strokeStyle = "white";
         maskCtx.lineCap = "round";
         maskCtx.lineJoin = "round";
 
-        // ブラシストロークを効率的に描画
         brushStrokes.forEach((stroke) => {
-          if (stroke.length === 1) {
-            const point = stroke[0];
+          const isEraser = stroke.tool === "eraser";
+          maskCtx.fillStyle = isEraser ? "black" : "white";
+          maskCtx.strokeStyle = isEraser ? "black" : "white";
+
+          if (stroke.points.length === 1) {
+            const point = stroke.points[0];
             maskCtx.beginPath();
             maskCtx.arc(point.x, point.y, point.size / 2, 0, Math.PI * 2);
             maskCtx.fill();
           } else {
-            // パスを最適化して描画
-            maskCtx.lineWidth = stroke[0].size;
+            maskCtx.lineWidth = stroke.points[0].size;
             maskCtx.beginPath();
-            maskCtx.moveTo(stroke[0].x, stroke[0].y);
-
-            // より効率的なパス描画
-            for (let i = 1; i < stroke.length; i += 2) {
-              // 間引き処理でパフォーマンス向上
-              if (i < stroke.length) {
-                maskCtx.lineTo(stroke[i].x, stroke[i].y);
+            maskCtx.moveTo(stroke.points[0].x, stroke.points[0].y);
+            for (let i = 1; i < stroke.points.length; i += 2) {
+              if (i < stroke.points.length) {
+                maskCtx.lineTo(stroke.points[i].x, stroke.points[i].y);
               }
             }
-            // 最後の点を確実に描画
-            if (stroke.length > 1) {
-              const lastPoint = stroke[stroke.length - 1];
+            if (stroke.points.length > 1) {
+              const lastPoint = stroke.points[stroke.points.length - 1];
               maskCtx.lineTo(lastPoint.x, lastPoint.y);
             }
             maskCtx.stroke();
           }
         });
 
-        // マスクデータを取得
-        const maskImageData = maskCtx.getImageData(
-          0,
-          0,
-          maskCanvas.width,
-          maskCanvas.height
-        );
-        const currentImageData = ctx.getImageData(
-          0,
-          0,
-          canvas.width,
-          canvas.height
-        );
-
-        // より効率的なピクセル合成
+        const maskImageData = maskCtx.getImageData(0, 0, maskCanvas.width, maskCanvas.height);
+        const currentImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
         const currentData = currentImageData.data;
         const blurredData = blurredImageCache.data;
         const maskData = maskImageData.data;
 
-        // 32bit単位で処理してパフォーマンスを向上
         const len = currentData.length;
         for (let i = 0; i < len; i += 4) {
           const maskValue = maskData[i] / 255;
-
           if (maskValue > 0.01) {
-            // 閾値を設けて処理を軽減
-            currentData[i] = blurredData[i]; // R
-            currentData[i + 1] = blurredData[i + 1]; // G
-            currentData[i + 2] = blurredData[i + 2]; // B
+            currentData[i] = blurredData[i];
+            currentData[i + 1] = blurredData[i + 1];
+            currentData[i + 2] = blurredData[i + 2];
           }
         }
 
-        // 合成結果をキャンバスに描画
         ctx.putImageData(currentImageData, 0, 0);
       }
 
-      // キャンバスのサイズを画像サイズに合わせて調整する関数
       function resizeCanvas(image) {
         const aspectRatio = image.width / image.height;
         if (aspectRatio > 1) {
@@ -654,51 +744,35 @@
         }
       }
 
-      // ダウンロード機能
-      // ① 自動保存（今までのまま）
-      document
-        .getElementById("downloadAutoBtn")
-        .addEventListener("click", () => {
-          const imageDataUrl = canvas.toDataURL("image/png");
-          const link = document.createElement("a");
-          link.href = imageDataUrl;
-          link.download = "edited-image.png";
-          link.click();
-        });
+      document.getElementById("downloadAutoBtn").addEventListener("click", () => {
+        const imageDataUrl = canvas.toDataURL("image/png");
+        const link = document.createElement("a");
+        link.href = imageDataUrl;
+        link.download = "edited-image.png";
+        link.click();
+      });
 
-      // ② エクスプローラーの保存ダイアログ表示
-      document
-        .getElementById("downloadDialogBtn")
-        .addEventListener("click", async () => {
-          try {
-            // ブラウザが File System Access API に対応しているかチェック
-            if (!window.showSaveFilePicker) {
-              alert(
-                "このブラウザは保存ダイアログ機能に対応していません。\n自動保存をご利用ください。"
-              );
-              return;
-            }
-
-            const fileHandle = await window.showSaveFilePicker({
-              suggestedName: "edited-image.png",
-              types: [
-                {
-                  description: "PNG画像",
-                  accept: { "image/png": [".png"] },
-                },
-              ],
-            });
-
-            const writableStream = await fileHandle.createWritable();
-            const blob = await (
-              await fetch(canvas.toDataURL("image/png"))
-            ).blob();
-            await writableStream.write(blob);
-            await writableStream.close();
-          } catch (err) {
-            console.error("保存エラー:", err);
+      document.getElementById("downloadDialogBtn").addEventListener("click", async () => {
+        try {
+          if (!window.showSaveFilePicker) {
+            alert("このブラウザは保存ダイアログ機能に対応していません。\n自動保存をご利用ください。");
+            return;
           }
-        });
+          const fileHandle = await window.showSaveFilePicker({
+            suggestedName: "edited-image.png",
+            types: [{
+              description: "PNG画像",
+              accept: { "image/png": [".png"] },
+            }],
+          });
+          const writableStream = await fileHandle.createWritable();
+          const blob = await (await fetch(canvas.toDataURL("image/png"))).blob();
+          await writableStream.write(blob);
+          await writableStream.close();
+        } catch (err) {
+          console.error("保存エラー:", err);
+        }
+      });
     </script>
   </body>
 </html>
