@@ -157,6 +157,49 @@
         justify-content: space-between;
       }
 
+      .brush-size-row {
+        display: flex !important;
+        align-items: center !important;
+        gap: 15px !important;
+        width: 100% !important;
+        max-width: 600px !important;
+        justify-content: flex-start !important;
+      }
+
+      #brushPreview {
+        width: 100px;
+        height: 100px;
+        border: 2px solid #ddd;
+        border-radius: 5px;
+        background-color: white;
+        position: relative;
+        flex-shrink: 0;
+        display: inline-block;
+        overflow: hidden;
+      }
+
+      .brush-preview-circle {
+        position: absolute;
+        border-radius: 50%;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        transition: width 0.1s ease, height 0.1s ease;
+        pointer-events: none;
+      }
+
+      .brush-preview-blur {
+        background-color: rgba(52, 152, 219, 0.5);
+        border: 2px solid #3498db;
+        box-sizing: border-box;
+      }
+
+      .brush-preview-eraser {
+        background-color: rgba(231, 76, 60, 0.3);
+        border: 2px solid #e74c3c;
+        box-sizing: border-box;
+      }
+
       .brush-tool-selector {
         display: flex;
         gap: 10px;
@@ -258,6 +301,17 @@
         margin: 0 10px;
       }
 
+      footer {
+        background-color: #2c3e50;
+        color: white;
+        text-align: center;
+        padding: 20px;
+        margin-top: 40px;
+      }
+
+      .footer-copy {
+        margin: 0;
+      }
     </style>
   </head>
 
@@ -327,7 +381,7 @@
               <button class="brush-tool-btn eraser-btn" id="eraserToolBtn">消しゴム</button>
             </div>
 
-            <div>
+            <div class="brush-size-row">
               <label for="brushSize">ブラシサイズ:</label>
               <input
                 type="range"
@@ -337,6 +391,9 @@
                 value="60"
               />
               <span id="brushSizeValue">60</span>px
+              <div id="brushPreview">
+                <div class="brush-preview-circle brush-preview-blur" id="previewCircle"></div>
+              </div>
             </div>
 
             <div id="blurStrengthControl">
@@ -385,6 +442,7 @@
       const brushToolBtn = document.getElementById("brushToolBtn");
       const eraserToolBtn = document.getElementById("eraserToolBtn");
       const blurStrengthControl = document.getElementById("blurStrengthControl");
+      const previewCircle = document.getElementById("previewCircle");
 
       let baseImage = new Image();
       let overlayImage = new Image();
@@ -403,6 +461,35 @@
 
       overlayImage.src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";
 
+      // ブラシプレビューを更新する関数
+      function updateBrushPreview() {
+        const size = parseInt(brushSize.value);
+        const maxBrushSize = 200; // ブラシの最大サイズ
+        const previewBoxSize = 90; // プレビューエリアの最大表示サイズ
+        
+        // ブラシサイズをプレビューボックスのサイズに比例縮小
+        // 200pxのブラシ → 90px表示
+        // 100pxのブラシ → 45px表示
+        // 20pxのブラシ → 9px表示
+        const displaySize = (size / maxBrushSize) * previewBoxSize;
+        
+        previewCircle.style.width = displaySize + 'px';
+        previewCircle.style.height = displaySize + 'px';
+        previewCircle.style.display = 'block';
+        
+        // ツールに応じてスタイルを変更
+        if (currentBrushTool === "eraser") {
+          previewCircle.className = "brush-preview-circle brush-preview-eraser";
+        } else {
+          previewCircle.className = "brush-preview-circle brush-preview-blur";
+        }
+      }
+
+      // DOMが完全に読み込まれた後に初期プレビューを設定
+      setTimeout(() => {
+        updateBrushPreview();
+      }, 100);
+
       // ブラシツール切り替え
       brushToolBtn.addEventListener("click", () => {
         currentBrushTool = "blur";
@@ -410,6 +497,7 @@
         eraserToolBtn.classList.remove("active");
         blurStrengthControl.style.display = "flex";
         canvas.className = "brush-mode";
+        updateBrushPreview();
       });
 
       eraserToolBtn.addEventListener("click", () => {
@@ -418,6 +506,7 @@
         brushToolBtn.classList.remove("active");
         blurStrengthControl.style.display = "none";
         canvas.className = "eraser-mode";
+        updateBrushPreview();
       });
 
       uploadImage.addEventListener("change", (event) => {
@@ -486,6 +575,7 @@
 
       brushSize.addEventListener("input", (e) => {
         brushSizeValue.textContent = e.target.value;
+        updateBrushPreview();
       });
 
       brushBlurStrength.addEventListener("input", (e) => {
