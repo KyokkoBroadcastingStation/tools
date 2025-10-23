@@ -85,6 +85,42 @@
         margin: 15px 0;
       }
 
+      .history-buttons {
+        margin: 15px 0;
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .history-buttons button {
+        padding: 10px 20px;
+        background-color: #95a5a6;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background-color 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      .history-buttons button:hover:not(:disabled) {
+        background-color: #7f8c8d;
+      }
+
+      .history-buttons button:disabled {
+        background-color: #bdc3c7;
+        cursor: not-allowed;
+        opacity: 0.6;
+      }
+
+      .resolution-buttons {
+        margin: 15px 0;
+      }
+
       .resolution-buttons label {
         font-weight: bold;
         margin-right: 10px;
@@ -333,6 +369,11 @@
         <div class="tool-bar">
           <input type="file" id="uploadImage" accept="image/*" />
 
+          <div class="history-buttons">
+            <button id="undoBtn" disabled>◀ 一つ戻る</button>
+            <button id="redoBtn" disabled>一つ進む ▶</button>
+          </div>
+
           <div class="resolution-buttons">
             <label>解像度変更:</label>
             <button onclick="changeResolution(1920, 1080)">フルHD</button>
@@ -443,6 +484,8 @@
       const eraserToolBtn = document.getElementById("eraserToolBtn");
       const blurStrengthControl = document.getElementById("blurStrengthControl");
       const previewCircle = document.getElementById("previewCircle");
+      const undoBtn = document.getElementById("undoBtn");
+      const redoBtn = document.getElementById("redoBtn");
 
       let baseImage = new Image();
       let overlayImage = new Image();
@@ -452,6 +495,8 @@
       let lastX = 0;
       let lastY = 0;
       let brushStrokes = [];
+      let historyStack = []; // 履歴スタック（戻る用）
+      let redoStack = []; // やり直しスタック（進む用）
 
       let blurredImageCache = null;
       let maskCanvas = null;
@@ -460,6 +505,51 @@
       let pendingRender = false;
 
       overlayImage.src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";
+
+      // 履歴を保存する関数
+      function saveHistory() {
+        // 現在の状態を履歴に追加（ディープコピー）
+        historyStack.push(JSON.parse(JSON.stringify(brushStrokes)));
+        // 新しい操作をしたらredoスタックをクリア
+        redoStack = [];
+        updateHistoryButtons();
+      }
+
+      // 履歴ボタンの有効/無効を更新
+      function updateHistoryButtons() {
+        undoBtn.disabled = historyStack.length === 0;
+        redoBtn.disabled = redoStack.length === 0;
+      }
+
+      // 一つ戻る
+      undoBtn.addEventListener("click", () => {
+        if (historyStack.length === 0) return;
+        
+        // 現在の状態をredoスタックに保存
+        redoStack.push(JSON.parse(JSON.stringify(brushStrokes)));
+        
+        // 一つ前の状態を復元
+        brushStrokes = JSON.parse(JSON.stringify(historyStack.pop()));
+        
+        updateHistoryButtons();
+        blurredImageCache = null;
+        drawImages();
+      });
+
+      // 一つ進む
+      redoBtn.addEventListener("click", () => {
+        if (redoStack.length === 0) return;
+        
+        // 現在の状態をhistoryスタックに保存
+        historyStack.push(JSON.parse(JSON.stringify(brushStrokes)));
+        
+        // 次の状態を復元
+        brushStrokes = JSON.parse(JSON.stringify(redoStack.pop()));
+        
+        updateHistoryButtons();
+        blurredImageCache = null;
+        drawImages();
+      });
 
       // ブラシプレビューを更新する関数
       function updateBrushPreview() {
@@ -523,8 +613,11 @@
       baseImage.onload = () => {
         resizeCanvas(baseImage);
         brushStrokes = [];
+        historyStack = [];
+        redoStack = [];
         blurredImageCache = null;
         initializeMaskCanvas();
+        updateHistoryButtons();
         drawImages();
       };
 
@@ -585,8 +678,11 @@
       });
 
       clearBrushBlurBtn.addEventListener("click", () => {
-        brushStrokes = [];
-        drawImages();
+        if (brushStrokes.length > 0) {
+          saveHistory();
+          brushStrokes = [];
+          drawImages();
+        }
       });
 
       canvas.addEventListener("mousedown", startDrawing);
@@ -607,6 +703,12 @@
       function startDrawing(e) {
         if (currentBlurMode !== "brush" || !baseImage.src) return;
         e.preventDefault();
+        
+        // 描画開始時に現在の状態を履歴に保存（新しいストロークを追加する前）
+        if (brushStrokes.length > 0 || historyStack.length === 0) {
+          saveHistory();
+        }
+        
         isDrawing = true;
         const pos = getMousePos(e);
         lastX = pos.x;
@@ -659,6 +761,12 @@
       function handleTouchStart(e) {
         if (currentBlurMode !== "brush" || !baseImage.src) return;
         e.preventDefault();
+        
+        // 描画開始時に現在の状態を履歴に保存（新しいストロークを追加する前）
+        if (brushStrokes.length > 0 || historyStack.length === 0) {
+          saveHistory();
+        }
+        
         const touch = e.touches[0];
         const pos = getTouchPos(touch);
         isDrawing = true;
@@ -730,8 +838,11 @@
           canvas.width = height * aspectRatio;
         }
         brushStrokes = [];
+        historyStack = [];
+        redoStack = [];
         blurredImageCache = null;
         initializeMaskCanvas();
+        updateHistoryButtons();
         drawImages();
       }
 
