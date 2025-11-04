@@ -321,6 +321,78 @@
         width: 200px;
         margin: 0 10px;
       }
+
+      /* ドラッグ&ドロップオーバーレイのスタイル */
+      #dropOverlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(52, 152, 219, 0.9);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      #dropOverlay.active {
+        display: flex;
+        opacity: 1;
+      }
+
+      .drop-content {
+        text-align: center;
+        color: white;
+        pointer-events: none;
+      }
+
+      .drop-area {
+        border: 4px dashed white;
+        border-radius: 20px;
+        padding: 60px 80px;
+        background-color: rgba(255, 255, 255, 0.1);
+        animation: pulse 2s ease-in-out infinite;
+      }
+
+      @keyframes pulse {
+        0%, 100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.05);
+        }
+      }
+
+      .drop-icon {
+        font-size: 80px;
+        margin-bottom: 20px;
+        animation: bounce 1s ease-in-out infinite;
+      }
+
+      @keyframes bounce {
+        0%, 100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+      }
+
+      .drop-text {
+        font-size: 32px;
+        font-weight: bold;
+        margin-bottom: 10px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .drop-subtext {
+        font-size: 18px;
+        opacity: 0.9;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+      }
     </style>
   </head>
 
@@ -330,6 +402,17 @@
         <h1>KBS情報通信ネットワーク</h1>
       </a>
     </header>
+
+    <!-- ドラッグ&ドロップオーバーレイ -->
+    <div id="dropOverlay">
+      <div class="drop-content">
+        <div class="drop-area">
+          <div class="drop-icon">📁</div>
+          <div class="drop-text">ここに画像をドロップ</div>
+          <div class="drop-subtext">対応形式: JPG, PNG, GIF など</div>
+        </div>
+      </div>
+    </div>
 
     <main>
       <h1 class="title">SNS用画像加工ツール</h1>
@@ -472,17 +555,18 @@
       const previewCircle = document.getElementById("previewCircle");
       const undoBtn = document.getElementById("undoBtn");
       const redoBtn = document.getElementById("redoBtn");
+      const dropOverlay = document.getElementById("dropOverlay");
 
       let baseImage = new Image();
       let overlayImage = new Image();
       let isDrawing = false;
       let currentBlurMode = "off";
-      let currentBrushTool = "blur"; // "blur" or "eraser"
+      let currentBrushTool = "blur";
       let lastX = 0;
       let lastY = 0;
       let brushStrokes = [];
-      let historyStack = []; // 履歴スタック（戻る用）
-      let redoStack = []; // やり直しスタック（進む用）
+      let historyStack = [];
+      let redoStack = [];
 
       let blurredImageCache = null;
       let maskCanvas = null;
@@ -492,32 +576,74 @@
 
       overlayImage.src = "img/overlay.png";
       overlayImage.onload = () => {
-        drawImages(); // ロゴ画像が読み込まれたあとに再描画
+        drawImages();
       };
+
+      // ドラッグ&ドロップ機能の実装
+      let dragCounter = 0;
+
+      // ページ全体でのドラッグイベント
+      document.body.addEventListener("dragenter", (e) => {
+        e.preventDefault();
+        dragCounter++;
+        if (dragCounter === 1) {
+          dropOverlay.classList.add("active");
+        }
+      });
+
+      document.body.addEventListener("dragleave", (e) => {
+        e.preventDefault();
+        dragCounter--;
+        if (dragCounter === 0) {
+          dropOverlay.classList.remove("active");
+        }
+      });
+
+      document.body.addEventListener("dragover", (e) => {
+        e.preventDefault();
+      });
+
+      document.body.addEventListener("drop", (e) => {
+        e.preventDefault();
+        dragCounter = 0;
+        dropOverlay.classList.remove("active");
+
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+          const file = files[0];
+          if (file.type.startsWith("image/")) {
+            loadImageFile(file);
+          } else {
+            alert("画像ファイルを選択してください");
+          }
+        }
+      });
+
+      // ファイル読み込み関数を共通化
+      function loadImageFile(file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          baseImage.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
 
       // 履歴を保存する関数
       function saveHistory() {
-        // 現在の状態を履歴に追加（ディープコピー）
         historyStack.push(JSON.parse(JSON.stringify(brushStrokes)));
-        // 新しい操作をしたらredoスタックをクリア
         redoStack = [];
         updateHistoryButtons();
       }
 
-      // 履歴ボタンの有効/無効を更新
       function updateHistoryButtons() {
         undoBtn.disabled = historyStack.length === 0;
         redoBtn.disabled = redoStack.length === 0;
       }
 
-      // 一つ戻る
       undoBtn.addEventListener("click", () => {
         if (historyStack.length === 0) return;
 
-        // 現在の状態をredoスタックに保存
         redoStack.push(JSON.parse(JSON.stringify(brushStrokes)));
-
-        // 一つ前の状態を復元
         brushStrokes = JSON.parse(JSON.stringify(historyStack.pop()));
 
         updateHistoryButtons();
@@ -525,14 +651,10 @@
         drawImages();
       });
 
-      // 一つ進む
       redoBtn.addEventListener("click", () => {
         if (redoStack.length === 0) return;
 
-        // 現在の状態をhistoryスタックに保存
         historyStack.push(JSON.parse(JSON.stringify(brushStrokes)));
-
-        // 次の状態を復元
         brushStrokes = JSON.parse(JSON.stringify(redoStack.pop()));
 
         updateHistoryButtons();
@@ -540,23 +662,17 @@
         drawImages();
       });
 
-      // ブラシプレビューを更新する関数
       function updateBrushPreview() {
         const size = parseInt(brushSize.value);
-        const maxBrushSize = 200; // ブラシの最大サイズ
-        const previewBoxSize = 90; // プレビューエリアの最大表示サイズ
+        const maxBrushSize = 200;
+        const previewBoxSize = 90;
 
-        // ブラシサイズをプレビューボックスのサイズに比例縮小
-        // 200pxのブラシ → 90px表示
-        // 100pxのブラシ → 45px表示
-        // 20pxのブラシ → 9px表示
         const displaySize = (size / maxBrushSize) * previewBoxSize;
 
         previewCircle.style.width = displaySize + "px";
         previewCircle.style.height = displaySize + "px";
         previewCircle.style.display = "block";
 
-        // ツールに応じてスタイルを変更
         if (currentBrushTool === "eraser") {
           previewCircle.className = "brush-preview-circle brush-preview-eraser";
         } else {
@@ -564,12 +680,10 @@
         }
       }
 
-      // DOMが完全に読み込まれた後に初期プレビューを設定
       setTimeout(() => {
         updateBrushPreview();
       }, 100);
 
-      // ブラシツール切り替え
       brushToolBtn.addEventListener("click", () => {
         currentBrushTool = "blur";
         brushToolBtn.classList.add("active");
@@ -591,11 +705,7 @@
       uploadImage.addEventListener("change", (event) => {
         const file = event.target.files[0];
         if (file) {
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            baseImage.src = e.target.result;
-          };
-          reader.readAsDataURL(file);
+          loadImageFile(file);
         }
       });
 
@@ -696,7 +806,6 @@
         if (currentBlurMode !== "brush" || !baseImage.src) return;
         e.preventDefault();
 
-        // 描画開始時に現在の状態を履歴に保存（新しいストロークを追加する前）
         if (brushStrokes.length > 0 || historyStack.length === 0) {
           saveHistory();
         }
@@ -758,7 +867,6 @@
         if (currentBlurMode !== "brush" || !baseImage.src) return;
         e.preventDefault();
 
-        // 描画開始時に現在の状態を履歴に保存（新しいストロークを追加する前）
         if (brushStrokes.length > 0 || historyStack.length === 0) {
           saveHistory();
         }
