@@ -16,6 +16,7 @@ body {
 header {
     background-color: white;
     padding: 5px 25px;
+    margin-bottom: 20px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     font-size: 13px;
     justify-content: start;
@@ -34,12 +35,13 @@ header h1{
 
 footer {
     display: flex;
+    position: absolute;
     background-color: #ffffff;
     bottom: 0;
     width: 100%;
     opacity: 0.5;
     font-size: 12px;
-    margin-top: 10px;
+    margin-top: 100px;
     padding: 10px 20px;
     box-shadow: var(--Container_shadow);
     border-radius: var(--boder-radius) var(--boder-radius) 0 0;

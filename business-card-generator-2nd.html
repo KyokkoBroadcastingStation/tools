@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style/main-style.css" />
     <title>名刺ジェネレーター</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -11,25 +12,6 @@
         margin: 0;
         padding: 0;
         box-sizing: border-box;
-      }
-
-      body {
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        min-height: 100vh;
-        padding: 20px;
-      }
-
-      header {
-        text-align: center;
-        color: white;
-        margin-bottom: 30px;
-      }
-
-      header h1 {
-        font-size: 32px;
-        font-weight: 700;
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
       }
 
       .container {
@@ -339,18 +321,6 @@
         width: 20mm;
       }
 
-      footer {
-        text-align: center;
-        color: white;
-        margin-top: 30px;
-        padding: 20px;
-      }
-
-      .footer-copy {
-        font-size: 14px;
-        opacity: 0.9;
-      }
-
       @media (max-width: 768px) {
         .container {
           grid-template-columns: 1fr;
@@ -367,7 +337,9 @@
   </head>
   <body>
     <header>
-      <h1>名刺ジェネレーター</h1>
+      <a href="/tools">
+        <h1>KBS情報通信ネットワーク</h1>
+      </a>
     </header>
 
     <div class="container">
