@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <link rel="stylesheet" href="style/main-style.css" />
+    <!-- ogp -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="SeeLAN - 使い方 & ダウンロード 丨 KBS情報通信ネットワーク" />
+    <meta property="og:site_name" content="KBS 北海道旭川工業高等学校 放送局 情報通信ネットワーク" />
+    <meta property="og:description" content="同一LAN内でPCのWebカメラ映像をQRコードで簡単に共有できるアプリケーション定期演奏会、学校祭に最適！" />
+    <title>SeeLAN - 使い方 & ダウンロード</title>
+
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #1b62a5;
+            --bg: #f6f7fb;
+            --text: #333;
+            --card: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+        }
+
+        img {
+            max-width: 100%;
+            border-radius: 10px;
+        }
+
+        a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        h1,
+        h2,
+        h3 {
+            margin: 0;
+            color: var(--text);
+        }
+
+        /* ===== Layout ===== */
+        .container {
+            max-width: 1100px;
+            margin: auto;
+            padding: 40px 20px;
+        }
+
+        /* ===== Hero ===== */
+        .hero {
+            display: grid;
+            gap: 0px;
+            grid-template-columns: 1fr 1fr;
+            align-items: center;
+            margin-bottom: 80px;
+        }
+
+        .hero h1 {
+            font-size: clamp(28px, 4vw, 42px);
+            margin-bottom: 10px;
+        }
+
+        .hero p {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+
+        .hero div {
+            width: 90%;
+        }
+
+        .download-btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 14px 26px;
+            background: var(--primary);
+            color: #fff;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: 0.5s;
+        }
+
+        .download-btn:hover {
+            opacity: 0.7;
+        }
+
+        /* ===== Section ===== */
+        section {
+            margin-bottom: 80px;
+        }
+
+        section h2 {
+            font-size: 28px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        /* ===== Steps ===== */
+        .steps {
+            display: grid;
+            gap: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        }
+
+        .step-card {
+            background: var(--card);
+            padding: 24px;
+            border-radius: 14px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+            transition: transform 0.2s ease;
+        }
+
+        .step-card h3 {
+            margin-top: 10px;
+            margin-bottom: 10px;
+            font-size: 20px;
+        }
+
+        .step-num {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        /* ===== Info ===== */
+        .info-box {
+            background: var(--card);
+            padding: 30px;
+            border-radius: 14px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+        }
+
+        ul {
+            padding-left: 20px;
+        }
+
+        /* ===== Spec ===== */
+        .spec-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+        }
+
+        .spec-card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 28px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+            position: relative;
+        }
+
+        .spec-card h3 {
+            font-size: 22px;
+            margin-bottom: 16px;
+        }
+
+        /* labels */
+        .spec-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 6px;
+            border-radius: 16px 16px 0 0;
+        }
+
+        /* Minimum */
+        .spec-card.minimum::before {
+            background: linear-gradient(90deg, #9e9e9e, #bdbdbd);
+        }
+
+        /* Recommended */
+        .spec-card.recommended::before {
+            background: linear-gradient(90deg, #282bc6, #359fe5);
+        }
+
+        .spec-card ul {
+            padding-left: 20px;
+        }
+
+        .spec-card li {
+            margin-bottom: 10px;
+        }
+
+        /* Emphasis */
+        .spec-card strong {
+            font-weight: 600;
+        }
+
+        /* ===== Security Warning Section ===== */
+        .security-section {
+            background: #fff3f3;
+            border: 2px solid #ff6b6b;
+            border-radius: 18px;
+            padding: 40px 30px;
+        }
+
+        .security-section h2 {
+            color: #c62828;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .security-section h2::before {
+            content: "⚠";
+            font-size: 32px;
+        }
+
+        .security-lead {
+            text-align: center;
+            font-size: 16px;
+            margin-bottom: 40px;
+            color: #444;
+        }
+
+        .security-subtitle {
+            text-align: center;
+            font-size: 22px;
+            margin: 50px 0 25px;
+            color: #b71c1c;
+        }
+
+        .step-card img {
+            margin-top: 15px;
+            border-radius: 8px;
+            border: solid 1px #ccc;
+            position: relative;
+        }
+
+
+        /* ===== Footer ===== */
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            font-size: 14px;
+            opacity: 0.7;
+        }
+
+        /* ===== Responsive ===== */
+        @media (max-width: 768px) {
+            .hero {
+                grid-template-columns: 1fr;
+                text-align: left;
+            }
+
+            .hero div {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!--header-->
+    <div id="header"></div>
+    <script>
+        fetch("Components/header.html")
+            .then((res) => res.text())
+            .then((html) => {
+                document.getElementById("header").innerHTML = html;
+            });
+    </script>
+    <!--header-->
+
+    <div class="container">
+
+        <!-- ===== Hero ===== -->
+        <div class="hero">
+            <div>
+                <h1>SeeLAN</h1>
+                <h2>- Webカメラ共有アプリ</h2>
+                <p>
+                    同一LAN内でPCのWebカメラ映像を<br>
+                    QRコードで簡単に共有できるアプリケーション<br>
+                    定期演奏会、学校祭に最適！</p>
+                <p>
+                    ※アプリケーションはWindowsのみに対応。<br>
+                    ※使用時のセキュリティ警告については下記ガイドを参照してください。
+                </p>
+                <a href="SeeLan_App.zip" class="download-btn">
+                    <span class="icon">⬇</span>
+                    <span class="text">
+                        <strong>ダウンロード</strong>
+                        <small>Windows</small>
+                    </span>
+                </a>
+                <p><small>※ダウンロード時にセキュリティ警告が表示されますが、無視してください。</small></p>
+
+            </div>
+
+            <img src="img/camera-share2.png" alt="Host画面">
+        </div>
+
+        <!-- ===== How to Use ===== -->
+        <section>
+            <h2>使い方</h2>
+
+            <div class="steps">
+                <div class="step-card">
+                    <div class="step-num">STEP 1</div>
+                    <h3>同じLANに接続</h3>
+                    <p>
+                        HostとViewerのPCを<br>
+                        同一ネットワーク（Wi-Fi / 有線）に接続します。
+                    </p>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-num">STEP 2</div>
+                    <h3>カメラ設定</h3>
+                    <p>
+                        カメラ・解像度・FPSを選択します。<br>
+                        （480p / 30fps 推奨）
+                    </p>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-num">STEP 3</div>
+                    <h3>QRコード共有</h3>
+                    <p>
+                        表示されたQRコードを<br>
+                        Viewer端末で読み取ります。<br>
+                        もしくは表示されたURLにアクセスします。
+                    </p>
+                </div>
+
+                <div class="step-card">
+                    <div class="step-num">STEP 4</div>
+                    <h3>映像確認</h3>
+                    <p>
+                        Viewer側ブラウザで<br>
+                        リアルタイム映像が表示されます。
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== Security Guide ===== -->
+        <!-- ===== Security Warning Guide ===== -->
+        <section class="security-section">
+            <h2>警告の回避方法ガイド</h2>
+
+            <p class="security-lead">
+                SeeLANは個人開発アプリのため、初回起動時やダウンロード時に<br>
+                <strong>Windows Defender やブラウザの警告</strong> が表示されます。<br>
+                以下は<strong>正常な動作</strong>ですので、手順に従って許可してください。
+            </p>
+
+            <!-- Windows Defender -->
+            <div class="security-subtitle">
+                ① Windows Defender による起動ブロック
+            </div>
+
+            <div class="steps">
+                <div class="step-card">
+                    <div class="step-num">STEP 1</div>
+                    <h3>警告画面を表示</h3>
+                    <p>
+                        アプリ起動時に<br>
+                        「Windows によって PC が保護されました」<br>
+                        と表示されます。
+                    </p>
+                    <img src="img/defender_step1.png" alt="Windows Defender 警告">
+                </div>
+
+                <div class="step-card">
+                    <div class="step-num">STEP 2</div>
+                    <h3>実行を許可</h3>
+                    <p>
+                        「詳細情報」をクリック後、<br>
+                        「実行」を選択してください。<br>
+                        ※初回起動時のみ表示されます。
+                    </p>
+                    <img src="img/defender_step2.png" alt="実行許可画面">
+                </div>
+            </div>
+
+            <!-- Browser -->
+            <div class="security-subtitle">
+                ② Viewerアクセス時のブラウザ警告
+            </div>
+
+            <div class="steps">
+                <div class="step-card">
+                    <div class="step-num">STEP 1</div>
+                    <h3>プライバシー警告</h3>
+                    <p>
+                        Viewer閲覧時に<br>
+                        「この接続ではプライバシーが保護されません」<br>
+                        と表示されます。
+                    </p>
+                    <img src="img/browser_step1.png" alt="ブラウザ警告">
+                </div>
+
+                <div class="step-card">
+                    <div class="step-num">STEP 2</div>
+                    <h3>アクセスを許可</h3>
+                    <p>
+                        「詳細設定」をクリックし、<br>
+                        「[URL]にアクセスする（安全ではありません）」を選択してください。
+                    </p>
+                    <img src="img/browser_step2.png" alt="保存許可">
+                </div>
+            </div>
+        </section>
+
+
+        <section>
+            <h2>HostPC推奨スペック</h2>
+
+            <div class="spec-grid">
+                <!-- Minimum -->
+                <div class="spec-card minimum">
+                    <h3>最低スペック</h3>
+                    <ul>
+                        <li><strong>OS：</strong>Windows 10</li>
+                        <li><strong>CPU：</strong>Intel Core i3（第6世代相当）</li>
+                        <li><strong>メモリ：</strong>4GB</li>
+                        <li><strong>ブラウザ：</strong>Chrome（最新版推奨）</li>
+                        <li><strong>ネットワーク速度(HostPC)：</strong>2Mbps以上</li>
+                    </ul>
+                </div>
+
+                <!-- Recommended -->
+                <div class="spec-card recommended">
+                    <h3>推奨スペック</h3>
+                    <ul>
+                        <li><strong>OS：</strong>Windows 11</li>
+                        <li><strong>CPU：</strong>Intel Core i5（第8世代相当） </li>
+                        <li><strong>メモリ：</strong>8GB以上</li>
+                        <li><strong>ブラウザ：</strong>Chrome（最新版）</li>
+                        <li><strong>ネットワーク速度(HostPC)：</strong>10Mbps以上</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== Viewer ===== -->
+        <section>
+            <h2>Viewerについて</h2>
+
+            <div class="info-box">
+                <ul>
+                    <li>専用アプリ不要（ブラウザのみ）</li>
+                    <li>スマートフォン・PCどちらも対応</li>
+                    <li>URL直接アクセスも可能</li>
+                    <li>全画面表示に対応</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- ===== Notes ===== -->
+        <section>
+            <h2>注意事項</h2>
+
+            <div class="info-box">
+                <ul>
+                    <li>セキュリティ警告が表示されますが無視してください。（個人開発のため署名なし）</li>
+                    <li>View数が多すぎると画質の低下が発生します。（推奨View数：10以下）</li>
+                    <li>他のインターネット越しの利用はできません</li>
+                    <li>HTTPSではなくHTTPで動作します</li>
+                    <li>カメラ使用時はブラウザの許可が必要です</li>
+                    <li>長時間使用時はPCの発熱に注意してください</li>
+                    <li>画質等はホストPCに依存します</li>
+                    <li>制作にはAIを使用しています。使用したことによる不利益は一切責任を負いません。</li>
+                </ul>
+            </div>
+        </section>
+
+    </div>
+
+    <!--footer-->
+    <div id="footer"></div>
+    <script>
+        fetch("Components/footer.html")
+            .then((res) => res.text())
+            .then((html) => {
+                document.getElementById("footer").innerHTML = html;
+            });
+    </script>
+    <!--footer-->
+</body>
+
+</html>

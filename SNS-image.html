@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+        <meta name="robots" content="noindex">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style/main-style.css" />
+        <!-- ogp -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="SNS用画像加工ツール 丨 KBS情報通信ネットワーク" />
+    <meta property="og:site_name" content="KBS 北海道旭川工業高等学校 放送局 情報通信ネットワーク" />
+    <meta property="og:description" content="個人情報を守ろう。モザイク、著作権表記を画像に追加。WindowsPC、Android端末のブラウザに対応。" />
+    <title>SNS用画像加工ツール 丨 KBS情報通信ネットワーク</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f5f5f5;
+      }
+
+      main {
+        padding: 40px 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .title {
+        color: #2c3e50;
+        margin-bottom: 30px;
+        text-align: center;
+      }
+
+      .container {
+        text-align: center;
+        width: 100%;
+        max-width: 1200px;
+      }
+
+      .tool-bar,
+      .support {
+        width: 90%;
+        max-width: 800px;
+        padding: 20px;
+        border-radius: 10px;
+        margin: 20px auto;
+        box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.3);
+        background-color: white;
+      }
+
+      .support h3 {
+        color: #2c3e50;
+        margin-bottom: 15px;
+      }
+
+      .support p {
+        color: #555;
+        line-height: 1.6;
+      }
+
+      #uploadImage {
+        margin: 10px;
+        padding: 10px;
+        border: 2px solid #3498db;
+        border-radius: 5px;
+        background-color: white;
+        cursor: pointer;
+      }
+
+      .resolution-buttons {
+        margin: 15px 0;
+      }
+
+      .history-buttons {
+        margin: 15px 0;
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .history-buttons button {
+        padding: 10px 20px;
+        background-color: #95a5a6;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background-color 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      .history-buttons button:hover:not(:disabled) {
+        background-color: #7f8c8d;
+      }
+
+      .history-buttons button:disabled {
+        background-color: #bdc3c7;
+        cursor: not-allowed;
+        opacity: 0.6;
+      }
+
+      .resolution-buttons {
+        margin: 15px 0;
+      }
+
+      .resolution-buttons label {
+        font-weight: bold;
+        margin-right: 10px;
+        color: #2c3e50;
+      }
+
+      .resolution-buttons button {
+        margin: 5px;
+        padding: 8px 16px;
+        background-color: #3498db;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+
+      .resolution-buttons button:hover {
+        background-color: #2980b9;
+      }
+
+      .blur-controls,
+      .brush-controls,
+      .slider-container {
+        margin: 15px 0;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+      }
+
+      .slider-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .slider-container label {
+        font-weight: bold;
+        color: #2c3e50;
+      }
+
+      .blur-controls div {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        margin-top: 10px;
+        flex-wrap: wrap;
+      }
+
+      .blur-controls label {
+        font-weight: bold;
+        color: #2c3e50;
+      }
+
+      .brush-controls {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        align-items: center;
+      }
+
+      .brush-controls > div {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+        max-width: 400px;
+        justify-content: space-between;
+      }
+
+      .brush-size-row {
+        display: flex !important;
+        align-items: center !important;
+        gap: 15px !important;
+        width: 100% !important;
+        max-width: 600px !important;
+        justify-content: flex-start !important;
+      }
+
+      #brushPreview {
+        width: 100px;
+        height: 100px;
+        border: 2px solid #ddd;
+        border-radius: 5px;
+        background-color: white;
+        position: relative;
+        flex-shrink: 0;
+        display: inline-block;
+        overflow: hidden;
+      }
+
+      .brush-preview-circle {
+        position: absolute;
+        border-radius: 50%;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        transition: width 0.1s ease, height 0.1s ease;
+        pointer-events: none;
+      }
+
+      .brush-preview-blur {
+        background-color: rgba(52, 152, 219, 0.5);
+        border: 2px solid #3498db;
+        box-sizing: border-box;
+      }
+
+      .brush-preview-eraser {
+        background-color: rgba(231, 76, 60, 0.3);
+        border: 2px solid #e74c3c;
+        box-sizing: border-box;
+      }
+
+      .brush-tool-selector {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+
+      .brush-tool-btn {
+        padding: 10px 20px;
+        border: 2px solid #3498db;
+        background-color: white;
+        color: #3498db;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-weight: bold;
+      }
+
+      .brush-tool-btn.active {
+        background-color: #3498db;
+        color: white;
+      }
+
+      .brush-tool-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      }
+
+      .eraser-btn {
+        border-color: #e74c3c;
+        color: #e74c3c;
+      }
+
+      .eraser-btn.active {
+        background-color: #e74c3c;
+        color: white;
+      }
+
+      #clearBrushBlur {
+        background-color: #ff6b6b;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background-color 0.3s;
+      }
+
+      #clearBrushBlur:hover {
+        background-color: #ff5252;
+      }
+
+      #downloadAutoBtn,
+      #downloadDialogBtn {
+        margin: 10px;
+        padding: 12px 24px;
+        background-color: #27ae60;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background-color 0.3s;
+      }
+
+      #downloadAutoBtn:hover,
+      #downloadDialogBtn:hover {
+        background-color: #229954;
+      }
+
+      #imageContainer {
+        position: relative;
+        width: 90%;
+        max-width: 800px;
+        height: auto;
+        overflow: auto;
+        border: 2px solid #ccc;
+        margin: 20px auto;
+        background-color: #eaeaea;
+        border-radius: 5px;
+      }
+
+      canvas {
+        width: 100%;
+        height: auto;
+        display: block;
+      }
+
+      canvas.brush-mode {
+        cursor: crosshair;
+      }
+
+      canvas.eraser-mode {
+        cursor: grab;
+      }
+
+      input[type="range"] {
+        width: 200px;
+        margin: 0 10px;
+      }
+
+      /* ドラッグ&ドロップオーバーレイのスタイル */
+      #dropOverlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(52, 152, 219, 0.9);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      #dropOverlay.active {
+        display: flex;
+        opacity: 1;
+      }
+
+      .drop-content {
+        text-align: center;
+        color: white;
+        pointer-events: none;
+      }
+
+      .drop-area {
+        border: 4px dashed white;
+        border-radius: 20px;
+        padding: 60px 80px;
+        background-color: rgba(255, 255, 255, 0.1);
+        animation: pulse 2s ease-in-out infinite;
+      }
+
+      @keyframes pulse {
+        0%, 100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.05);
+        }
+      }
+
+      .drop-icon {
+        font-size: 80px;
+        margin-bottom: 20px;
+        animation: bounce 1s ease-in-out infinite;
+      }
+
+      @keyframes bounce {
+        0%, 100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+      }
+
+      .drop-text {
+        font-size: 32px;
+        font-weight: bold;
+        margin-bottom: 10px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .drop-subtext {
+        font-size: 18px;
+        opacity: 0.9;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+      }
+    </style>
+  </head>
+
+  <body>
+    <!--header-->
+    <div id="header"></div>
+    <script>
+      fetch("Components/header.html")
+        .then((res) => res.text())
+        .then((html) => {
+          document.getElementById("header").innerHTML = html;
+        });
+    </script>
+    <!--header-->
+
+    <!-- ドラッグ&ドロップオーバーレイ -->
+    <div id="dropOverlay">
+      <div class="drop-content">
+        <div class="drop-area">
+          <div class="drop-icon">📁</div>
+          <div class="drop-text">ここに画像をドロップ</div>
+          <div class="drop-subtext">対応形式: JPG, PNG, GIF など</div>
+        </div>
+      </div>
+    </div>
+
+    <main>
+      <h1 class="title">SNS用画像加工ツール</h1>
+      <div class="container">
+        <div class="support">
+          <h3>ぼかし機能動作確認済み端末一覧</h3>
+          <p>・GoogleChrome(Windows)<br />・GoogleChrome(GooglePixel8a)</p>
+          <p>※iOSではぼかし機能を使用できません。</p>
+        </div>
+        <div class="tool-bar">
+          <input type="file" id="uploadImage" accept="image/*" />
+
+          <div class="history-buttons">
+            <button id="undoBtn" disabled>◀ 一つ戻る</button>
+            <button id="redoBtn" disabled>一つ進む ▶</button>
+          </div>
+
+          <div class="resolution-buttons">
+            <label>解像度変更:</label>
+            <button onclick="changeResolution(1920, 1080)">フルHD</button>
+            <button onclick="changeResolution(1280, 720)">HD</button>
+            <button onclick="changeResolution(640, 360)">SD</button>
+          </div>
+
+          <div class="blur-controls">
+            <label>ぼかし機能:</label>
+            <div>
+              <input
+                type="radio"
+                id="blurOff"
+                name="blurMode"
+                value="off"
+                checked
+              />
+              <label for="blurOff">なし</label>
+
+              <input type="radio" id="blurAll" name="blurMode" value="all" />
+              <label for="blurAll">全体</label>
+
+              <input
+                type="radio"
+                id="blurBrush"
+                name="blurMode"
+                value="brush"
+              />
+              <label for="blurBrush">ブラシ</label>
+            </div>
+          </div>
+
+          <div
+            class="slider-container"
+            id="globalBlurControls"
+            style="display: none"
+          >
+            <label for="blurSlider">全体ぼかしの強さ:</label>
+            <input type="range" id="blurSlider" min="0" max="40" value="0" />
+            <span id="blurValue">0</span>px
+          </div>
+
+          <div class="brush-controls" id="brushControls" style="display: none">
+            <div class="brush-tool-selector">
+              <button class="brush-tool-btn active" id="brushToolBtn">
+                ぼかしブラシ
+              </button>
+              <button class="brush-tool-btn eraser-btn" id="eraserToolBtn">
+                消しゴム
+              </button>
+            </div>
+
+            <div class="brush-size-row">
+              <label for="brushSize">ブラシサイズ:</label>
+              <input
+                type="range"
+                id="brushSize"
+                min="20"
+                max="200"
+                value="60"
+              />
+              <span id="brushSizeValue">60</span>px
+              <div id="brushPreview">
+                <div
+                  class="brush-preview-circle brush-preview-blur"
+                  id="previewCircle"
+                ></div>
+              </div>
+            </div>
+
+            <div id="blurStrengthControl">
+              <label for="brushBlurStrength">ぼかし強度:</label>
+              <input
+                type="range"
+                id="brushBlurStrength"
+                min="1"
+                max="40"
+                value="10"
+              />
+              <span id="brushBlurStrengthValue">10</span>px
+            </div>
+
+            <button id="clearBrushBlur">ブラシぼかしリセット</button>
+          </div>
+
+          <button id="downloadAutoBtn">自動保存</button>
+          <button id="downloadDialogBtn">名前を付けて保存</button>
+        </div>
+
+        <div id="imageContainer">
+          <canvas id="canvas"></canvas>
+        </div>
+      </div>
+    </main>
+
+    <!--footer-->
+    <div id="footer"></div>
+    <script>
+      fetch("Components/footer.html")
+        .then((res) => res.text())
+        .then((html) => {
+          document.getElementById("footer").innerHTML = html;
+        });
+    </script>
+    <!--footer-->
+
+    <script>
+      const canvas = document.getElementById("canvas");
+      const ctx = canvas.getContext("2d");
+      const uploadImage = document.getElementById("uploadImage");
+      const blurSlider = document.getElementById("blurSlider");
+      const blurModeRadios = document.querySelectorAll(
+        'input[name="blurMode"]'
+      );
+      const brushControls = document.getElementById("brushControls");
+      const globalBlurControls = document.getElementById("globalBlurControls");
+      const blurValue = document.getElementById("blurValue");
+      const brushSize = document.getElementById("brushSize");
+      const brushSizeValue = document.getElementById("brushSizeValue");
+      const brushBlurStrength = document.getElementById("brushBlurStrength");
+      const brushBlurStrengthValue = document.getElementById(
+        "brushBlurStrengthValue"
+      );
+      const clearBrushBlurBtn = document.getElementById("clearBrushBlur");
+      const brushToolBtn = document.getElementById("brushToolBtn");
+      const eraserToolBtn = document.getElementById("eraserToolBtn");
+      const blurStrengthControl = document.getElementById(
+        "blurStrengthControl"
+      );
+      const previewCircle = document.getElementById("previewCircle");
+      const undoBtn = document.getElementById("undoBtn");
+      const redoBtn = document.getElementById("redoBtn");
+      const dropOverlay = document.getElementById("dropOverlay");
+
+      let baseImage = new Image();
+      let overlayImage = new Image();
+      let isDrawing = false;
+      let currentBlurMode = "off";
+      let currentBrushTool = "blur";
+      let lastX = 0;
+      let lastY = 0;
+      let brushStrokes = [];
+      let historyStack = [];
+      let redoStack = [];
+
+      let blurredImageCache = null;
+      let maskCanvas = null;
+      let maskCtx = null;
+      let renderTimeout = null;
+      let pendingRender = false;
+
+      overlayImage.src = "img/overlay.png";
+      overlayImage.onload = () => {
+        drawImages();
+      };
+
+      // ドラッグ&ドロップ機能の実装
+      let dragCounter = 0;
+
+      // ページ全体でのドラッグイベント
+      document.body.addEventListener("dragenter", (e) => {
+        e.preventDefault();
+        dragCounter++;
+        if (dragCounter === 1) {
+          dropOverlay.classList.add("active");
+        }
+      });
+
+      document.body.addEventListener("dragleave", (e) => {
+        e.preventDefault();
+        dragCounter--;
+        if (dragCounter === 0) {
+          dropOverlay.classList.remove("active");
+        }
+      });
+
+      document.body.addEventListener("dragover", (e) => {
+        e.preventDefault();
+      });
+
+      document.body.addEventListener("drop", (e) => {
+        e.preventDefault();
+        dragCounter = 0;
+        dropOverlay.classList.remove("active");
+
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+          const file = files[0];
+          if (file.type.startsWith("image/")) {
+            loadImageFile(file);
+          } else {
+            alert("画像ファイルを選択してください");
+          }
+        }
+      });
+
+      // ファイル読み込み関数を共通化
+      function loadImageFile(file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          baseImage.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+
+      // 履歴を保存する関数
+      function saveHistory() {
+        historyStack.push(JSON.parse(JSON.stringify(brushStrokes)));
+        redoStack = [];
+        updateHistoryButtons();
+      }
+
+      function updateHistoryButtons() {
+        undoBtn.disabled = historyStack.length === 0;
+        redoBtn.disabled = redoStack.length === 0;
+      }
+
+      undoBtn.addEventListener("click", () => {
+        if (historyStack.length === 0) return;
+
+        redoStack.push(JSON.parse(JSON.stringify(brushStrokes)));
+        brushStrokes = JSON.parse(JSON.stringify(historyStack.pop()));
+
+        updateHistoryButtons();
+        blurredImageCache = null;
+        drawImages();
+      });
+
+      redoBtn.addEventListener("click", () => {
+        if (redoStack.length === 0) return;
+
+        historyStack.push(JSON.parse(JSON.stringify(brushStrokes)));
+        brushStrokes = JSON.parse(JSON.stringify(redoStack.pop()));
+
+        updateHistoryButtons();
+        blurredImageCache = null;
+        drawImages();
+      });
+
+      function updateBrushPreview() {
+        const size = parseInt(brushSize.value);
+        const maxBrushSize = 200;
+        const previewBoxSize = 90;
+
+        const displaySize = (size / maxBrushSize) * previewBoxSize;
+
+        previewCircle.style.width = displaySize + "px";
+        previewCircle.style.height = displaySize + "px";
+        previewCircle.style.display = "block";
+
+        if (currentBrushTool === "eraser") {
+          previewCircle.className = "brush-preview-circle brush-preview-eraser";
+        } else {
+          previewCircle.className = "brush-preview-circle brush-preview-blur";
+        }
+      }
+
+      setTimeout(() => {
+        updateBrushPreview();
+      }, 100);
+
+      brushToolBtn.addEventListener("click", () => {
+        currentBrushTool = "blur";
+        brushToolBtn.classList.add("active");
+        eraserToolBtn.classList.remove("active");
+        blurStrengthControl.style.display = "flex";
+        canvas.className = "brush-mode";
+        updateBrushPreview();
+      });
+
+      eraserToolBtn.addEventListener("click", () => {
+        currentBrushTool = "eraser";
+        eraserToolBtn.classList.add("active");
+        brushToolBtn.classList.remove("active");
+        blurStrengthControl.style.display = "none";
+        canvas.className = "eraser-mode";
+        updateBrushPreview();
+      });
+
+      uploadImage.addEventListener("change", (event) => {
+        const file = event.target.files[0];
+        if (file) {
+          loadImageFile(file);
+        }
+      });
+
+      baseImage.onload = () => {
+        resizeCanvas(baseImage);
+        brushStrokes = [];
+        historyStack = [];
+        redoStack = [];
+        blurredImageCache = null;
+        initializeMaskCanvas();
+        updateHistoryButtons();
+        drawImages();
+      };
+
+      function initializeMaskCanvas() {
+        if (!maskCanvas) {
+          maskCanvas = document.createElement("canvas");
+          maskCtx = maskCanvas.getContext("2d");
+        }
+        maskCanvas.width = canvas.width;
+        maskCanvas.height = canvas.height;
+      }
+
+      function scheduleRender() {
+        if (pendingRender) return;
+        pendingRender = true;
+        if (renderTimeout) {
+          clearTimeout(renderTimeout);
+        }
+        renderTimeout = setTimeout(() => {
+          drawImages();
+          pendingRender = false;
+        }, 16);
+      }
+
+      blurSlider.addEventListener("input", (e) => {
+        blurValue.textContent = e.target.value;
+        scheduleRender();
+      });
+
+      blurModeRadios.forEach((radio) => {
+        radio.addEventListener("change", (e) => {
+          currentBlurMode = e.target.value;
+          brushControls.style.display =
+            currentBlurMode === "brush" ? "block" : "none";
+          globalBlurControls.style.display =
+            currentBlurMode === "all" ? "block" : "none";
+
+          if (currentBlurMode === "brush") {
+            canvas.className =
+              currentBrushTool === "eraser" ? "eraser-mode" : "brush-mode";
+          } else {
+            canvas.className = "";
+          }
+
+          if (currentBlurMode !== "brush") {
+            blurredImageCache = null;
+          }
+          drawImages();
+        });
+      });
+
+      brushSize.addEventListener("input", (e) => {
+        brushSizeValue.textContent = e.target.value;
+        updateBrushPreview();
+      });
+
+      brushBlurStrength.addEventListener("input", (e) => {
+        brushBlurStrengthValue.textContent = e.target.value;
+        blurredImageCache = null;
+        scheduleRender();
+      });
+
+      clearBrushBlurBtn.addEventListener("click", () => {
+        if (brushStrokes.length > 0) {
+          saveHistory();
+          brushStrokes = [];
+          drawImages();
+        }
+      });
+
+      canvas.addEventListener("mousedown", startDrawing);
+      canvas.addEventListener("mousemove", draw);
+      canvas.addEventListener("mouseup", stopDrawing);
+      canvas.addEventListener("mouseout", stopDrawing);
+
+      function getMousePos(e) {
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        return {
+          x: (e.clientX - rect.left) * scaleX,
+          y: (e.clientY - rect.top) * scaleY,
+        };
+      }
+
+      function startDrawing(e) {
+        if (currentBlurMode !== "brush" || !baseImage.src) return;
+        e.preventDefault();
+
+        if (brushStrokes.length > 0 || historyStack.length === 0) {
+          saveHistory();
+        }
+
+        isDrawing = true;
+        const pos = getMousePos(e);
+        lastX = pos.x;
+        lastY = pos.y;
+
+        const newStroke = {
+          tool: currentBrushTool,
+          points: [
+            {
+              x: pos.x,
+              y: pos.y,
+              size: parseInt(brushSize.value),
+            },
+          ],
+        };
+        brushStrokes.push(newStroke);
+        scheduleRender();
+      }
+
+      function draw(e) {
+        if (!isDrawing || currentBlurMode !== "brush") return;
+        e.preventDefault();
+        const pos = getMousePos(e);
+        const currentStroke = brushStrokes[brushStrokes.length - 1];
+
+        const distance = Math.sqrt(
+          Math.pow(pos.x - lastX, 2) + Math.pow(pos.y - lastY, 2)
+        );
+        const steps = Math.max(1, Math.ceil(distance / 5));
+
+        for (let i = 1; i <= steps; i++) {
+          const t = i / steps;
+          const interpX = lastX + (pos.x - lastX) * t;
+          const interpY = lastY + (pos.y - lastY) * t;
+          currentStroke.points.push({
+            x: interpX,
+            y: interpY,
+            size: parseInt(brushSize.value),
+          });
+        }
+
+        lastX = pos.x;
+        lastY = pos.y;
+        scheduleRender();
+      }
+
+      canvas.addEventListener("touchstart", handleTouchStart, {
+        passive: false,
+      });
+      canvas.addEventListener("touchmove", handleTouchMove, { passive: false });
+      canvas.addEventListener("touchend", stopDrawing);
+      canvas.addEventListener("touchcancel", stopDrawing);
+
+      function handleTouchStart(e) {
+        if (currentBlurMode !== "brush" || !baseImage.src) return;
+        e.preventDefault();
+
+        if (brushStrokes.length > 0 || historyStack.length === 0) {
+          saveHistory();
+        }
+
+        const touch = e.touches[0];
+        const pos = getTouchPos(touch);
+        isDrawing = true;
+        lastX = pos.x;
+        lastY = pos.y;
+
+        const newStroke = {
+          tool: currentBrushTool,
+          points: [
+            {
+              x: pos.x,
+              y: pos.y,
+              size: parseInt(brushSize.value),
+            },
+          ],
+        };
+        brushStrokes.push(newStroke);
+        scheduleRender();
+      }
+
+      function handleTouchMove(e) {
+        if (!isDrawing || currentBlurMode !== "brush") return;
+        e.preventDefault();
+        const touch = e.touches[0];
+        const pos = getTouchPos(touch);
+        const currentStroke = brushStrokes[brushStrokes.length - 1];
+
+        const distance = Math.sqrt(
+          Math.pow(pos.x - lastX, 2) + Math.pow(pos.y - lastY, 2)
+        );
+        const steps = Math.max(1, Math.ceil(distance / 5));
+
+        for (let i = 1; i <= steps; i++) {
+          const t = i / steps;
+          const interpX = lastX + (pos.x - lastX) * t;
+          const interpY = lastY + (pos.y - lastY) * t;
+          currentStroke.points.push({
+            x: interpX,
+            y: interpY,
+            size: parseInt(brushSize.value),
+          });
+        }
+
+        lastX = pos.x;
+        lastY = pos.y;
+        scheduleRender();
+      }
+
+      function getTouchPos(touch) {
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        return {
+          x: (touch.clientX - rect.left) * scaleX,
+          y: (touch.clientY - rect.top) * scaleY,
+        };
+      }
+
+      function stopDrawing() {
+        isDrawing = false;
+      }
+
+      function changeResolution(width, height) {
+        if (!baseImage.src) return;
+        const aspectRatio = baseImage.width / baseImage.height;
+        if (aspectRatio > 1) {
+          canvas.width = width;
+          canvas.height = width / aspectRatio;
+        } else {
+          canvas.height = height;
+          canvas.width = height * aspectRatio;
+        }
+        brushStrokes = [];
+        historyStack = [];
+        redoStack = [];
+        blurredImageCache = null;
+        initializeMaskCanvas();
+        updateHistoryButtons();
+        drawImages();
+      }
+
+      function drawImages() {
+        if (!baseImage.src) return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        if (currentBlurMode === "off") {
+          ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
+        } else if (currentBlurMode === "all") {
+          ctx.filter = `blur(${blurSlider.value}px)`;
+          ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
+          ctx.filter = "none";
+        } else if (currentBlurMode === "brush") {
+          ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
+          if (brushStrokes.length > 0) {
+            applyBrushBlurOptimized();
+          }
+        }
+
+        ctx.filter = "none";
+        const overlayX = canvas.width - overlayImage.width;
+        const overlayY = canvas.height - overlayImage.height;
+        ctx.drawImage(overlayImage, overlayX, overlayY);
+      }
+
+      function applyBrushBlurOptimized() {
+        if (!blurredImageCache) {
+          const blurCanvas = document.createElement("canvas");
+          blurCanvas.width = canvas.width;
+          blurCanvas.height = canvas.height;
+          const blurCtx = blurCanvas.getContext("2d");
+          const totalBlur = parseInt(brushBlurStrength.value);
+          blurCtx.filter = `blur(${totalBlur}px)`;
+          blurCtx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
+          blurCtx.filter = "none";
+          blurredImageCache = blurCtx.getImageData(
+            0,
+            0,
+            canvas.width,
+            canvas.height
+          );
+        }
+
+        maskCtx.fillStyle = "black";
+        maskCtx.fillRect(0, 0, maskCanvas.width, maskCanvas.height);
+        maskCtx.globalCompositeOperation = "source-over";
+        maskCtx.lineCap = "round";
+        maskCtx.lineJoin = "round";
+
+        brushStrokes.forEach((stroke) => {
+          const isEraser = stroke.tool === "eraser";
+          maskCtx.fillStyle = isEraser ? "black" : "white";
+          maskCtx.strokeStyle = isEraser ? "black" : "white";
+
+          if (stroke.points.length === 1) {
+            const point = stroke.points[0];
+            maskCtx.beginPath();
+            maskCtx.arc(point.x, point.y, point.size / 2, 0, Math.PI * 2);
+            maskCtx.fill();
+          } else {
+            maskCtx.lineWidth = stroke.points[0].size;
+            maskCtx.beginPath();
+            maskCtx.moveTo(stroke.points[0].x, stroke.points[0].y);
+            for (let i = 1; i < stroke.points.length; i += 2) {
+              if (i < stroke.points.length) {
+                maskCtx.lineTo(stroke.points[i].x, stroke.points[i].y);
+              }
+            }
+            if (stroke.points.length > 1) {
+              const lastPoint = stroke.points[stroke.points.length - 1];
+              maskCtx.lineTo(lastPoint.x, lastPoint.y);
+            }
+            maskCtx.stroke();
+          }
+        });
+
+        const maskImageData = maskCtx.getImageData(
+          0,
+          0,
+          maskCanvas.width,
+          maskCanvas.height
+        );
+        const currentImageData = ctx.getImageData(
+          0,
+          0,
+          canvas.width,
+          canvas.height
+        );
+        const currentData = currentImageData.data;
+        const blurredData = blurredImageCache.data;
+        const maskData = maskImageData.data;
+
+        const len = currentData.length;
+        for (let i = 0; i < len; i += 4) {
+          const maskValue = maskData[i] / 255;
+          if (maskValue > 0.01) {
+            currentData[i] = blurredData[i];
+            currentData[i + 1] = blurredData[i + 1];
+            currentData[i + 2] = blurredData[i + 2];
+          }
+        }
+
+        ctx.putImageData(currentImageData, 0, 0);
+      }
+
+      function resizeCanvas(image) {
+        const aspectRatio = image.width / image.height;
+        if (aspectRatio > 1) {
+          canvas.width = 1920;
+          canvas.height = 1920 / aspectRatio;
+        } else {
+          canvas.height = 1920;
+          canvas.width = 1920 * aspectRatio;
+        }
+      }
+
+      document
+        .getElementById("downloadAutoBtn")
+        .addEventListener("click", () => {
+          const imageDataUrl = canvas.toDataURL("image/png");
+          const link = document.createElement("a");
+          link.href = imageDataUrl;
+          link.download = "edited-image.png";
+          link.click();
+        });
+
+      document
+        .getElementById("downloadDialogBtn")
+        .addEventListener("click", async () => {
+          try {
+            if (!window.showSaveFilePicker) {
+              alert(
+                "このブラウザは保存ダイアログ機能に対応していません。\n自動保存をご利用ください。"
+              );
+              return;
+            }
+            const fileHandle = await window.showSaveFilePicker({
+              suggestedName: "edited-image.png",
+              types: [
+                {
+                  description: "PNG画像",
+                  accept: { "image/png": [".png"] },
+                },
+              ],
+            });
+            const writableStream = await fileHandle.createWritable();
+            const blob = await (
+              await fetch(canvas.toDataURL("image/png"))
+            ).blob();
+            await writableStream.write(blob);
+            await writableStream.close();
+          } catch (err) {
+            console.error("保存エラー:", err);
+          }
+        });
+    </script>
+  </body>
+</html>

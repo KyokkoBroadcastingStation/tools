@@ -1,0 +1,233 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    min-height: 100vh;
+    align-items: center;
+    justify-content: center;
+}
+
+.container {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0px 0px 10px 0px rgba(59, 59, 59, 0.4);
+    overflow: hidden;
+    width: 100%;
+    display: grid;
+    gap: 0;
+    min-height: 600px;
+    margin: 5vh auto;
+}
+
+.preview-section {
+    margin: 0 auto;
+    justify-content: center;
+    background: #ffffff;
+}
+
+.input-section {
+    padding: 40px;
+    background: #f8f9ff;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    overflow-y: auto;
+}
+
+.container-title {
+    color: #333;
+    margin-bottom: 30px;
+    font-size: 28px;
+    font-weight: 700;
+    text-align: center;
+}
+
+.form-group {
+    margin-bottom: 25px;
+}
+
+.checkbox-group {
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    background: white;
+    border: 2px solid #e1e5e9;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.checkbox-group:hover {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.checkbox-group input[type="checkbox"] {
+    width: auto;
+    margin-right: 10px;
+    transform: scale(1.2);
+    cursor: pointer;
+}
+
+.checkbox-group label {
+    margin: 0;
+    cursor: pointer;
+    color: #555;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    color: #555;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+input {
+    width: 100%;
+    padding: 15px;
+    border: 2px solid #e1e5e9;
+    border-radius: 10px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    transform: translateY(-2px);
+}
+
+.card-content,
+.preview-card-content {
+    position: relative;
+    z-index: 2;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/*staff-card */
+.card-main,
+.preview-card-main {
+    border-left: 2px solid #333;
+    margin-top: 10px;
+}
+
+.company-name,
+.preview-company-name {
+    font-size: 18px;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 20px;
+    letter-spacing: 1px;
+}
+
+.card-position,
+.card-grade,
+.preview-card-position,
+.preview-card-grade {
+    font-size: 12px;
+    color: #333;
+    margin-bottom: 0;
+    padding-left: 8px;
+}
+
+.card-name,
+.preview-card-name {
+    font-size: 45px;
+    font-weight: 700;
+    margin-bottom: 0;
+    color: #333;
+    letter-spacing: 2px;
+    padding-left: 6px;
+    line-height: 1.1;
+}
+
+.card-reading,
+.preview-card-reading {
+    font-size: 11px;
+    color: #666;
+    margin-bottom: 5px;
+    padding-left: 8px;
+}
+
+.card-logo,
+.preview-card-logo {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    margin-right: -30px;
+    width: 35%;
+}
+
+.training-logo,
+.preview-training-logo {
+    position: absolute;
+    top: -10px;
+    right: -20px;
+    width: 100%;
+    z-index: -1;
+    display: none;
+    object-fit: contain;
+}
+
+.training-logo.visible,
+.preview-training-logo.visible {
+    display: block;
+}
+
+
+
+/* ボタンスタイル */
+.add-btn,
+.download-btn,
+.reset-btn {
+    width: 100%;
+    margin-top: 10px;
+    padding: 15px 20px;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.add-btn {
+    background: linear-gradient(135deg, #28a745, #20c997);
+}
+
+.download-btn {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+}
+
+.reset-btn {
+    background: linear-gradient(135deg, #dc3545, #c82333);
+    margin-bottom: 20px;
+}
+
+.add-btn:hover,
+.download-btn:hover,
+.reset-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+}
+
+.add-btn:hover {
+    box-shadow: 0 10px 25px rgba(40, 167, 69, 0.3);
+}
+
+.reset-btn:hover {
+    box-shadow: 0 10px 25px rgba(220, 53, 69, 0.3);
+}

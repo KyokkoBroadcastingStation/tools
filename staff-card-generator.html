@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="robots" content="noindex" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style/main-style.css" />
+    <link rel="stylesheet" href="style/staff-card.css" />
+    <!-- ogp -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="スタッフ証ジェネレーター 丨 KBS情報通信ネットワーク" />
+    <meta
+      property="og:site_name"
+      content="KBS 北海道旭川工業高等学校 放送局 情報通信ネットワーク"
+    />
+    <meta
+      property="og:description"
+      content="あなたは誰？身分を明かそう。Web上で簡単にスタッフ証を作成することができます。A4サイズ、名刺サイズ出力に対応。"
+    />
+    <title>スタッフ証ジェネレーター 丨 KBS情報通信ネットワーク</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      /* タブスタイル */
+      .tab-container {
+        max-width: 1500px;
+        margin: 20px auto;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+
+      .tab-header {
+        display: flex;
+        background: #f8f9fa;
+        border-bottom: 2px solid #e1e8ed;
+      }
+
+      .tab-button {
+        flex: 1;
+        padding: 20px;
+        background: transparent;
+        border: none;
+        font-size: 18px;
+        font-weight: 600;
+        color: #666;
+        cursor: pointer;
+        transition: all 0.3s;
+        position: relative;
+      }
+
+      .tab-button:hover {
+        background: #f0f4f8;
+        color: #333;
+      }
+
+      .tab-button.active {
+        color: #667eea;
+        background: white;
+      }
+
+      .tab-button.active::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+      }
+
+      .tab-content {
+        display: none;
+      }
+
+      .tab-content.active {
+        display: block;
+      }
+
+      /* A4出力用スタイル */
+      .container-a4 {
+        max-width: 1500px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 20px;
+        padding: 20px;
+      }
+
+      /* 名刺サイズ出力用スタイル */
+      .container-card {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        padding: 20px;
+      }
+
+      .preview-section {
+        padding: 20px;
+        width: 100%;
+        max-height: 80vh;
+        overflow-y: auto;
+      }
+
+      .preview-section-card {
+        padding: 10px;
+        width: 90%;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #ffffff;
+      }
+
+      .current-person {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        padding: 10px 15px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        text-align: center;
+        font-weight: 600;
+      }
+
+      .person-list {
+        background: #f0f4f8;
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        overflow: auto;
+        max-height: 50vh;
+        border-radius: 20px;
+      }
+
+      .person-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 12px;
+        background: white;
+        border-radius: 6px;
+        margin-bottom: 8px;
+        font-size: 14px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .person-item:last-child {
+        margin-bottom: 0;
+      }
+
+      .person-name {
+        font-weight: 600;
+        color: #333;
+      }
+
+      .person-details {
+        color: #666;
+        font-size: 12px;
+      }
+
+      .training-badge {
+        background: #dc3545;
+        color: white;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-size: 10px;
+        font-weight: 600;
+        margin-left: 5px;
+      }
+
+      .delete-btn {
+        background: #dc3545;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 4px 8px;
+        cursor: pointer;
+        font-size: 12px;
+        width: auto;
+        margin: 0;
+      }
+
+      .delete-btn:hover {
+        background: #c82333;
+      }
+
+      .live-preview {
+        background: linear-gradient(135deg, #e3f2fd, #f8f9ff);
+        padding: 20px;
+        border: 2px solid #e1e8ed;
+      }
+
+      .live-preview h3 {
+        color: #333;
+        margin-bottom: 15px;
+        font-size: 18px;
+        text-align: center;
+        font-weight: 600;
+      }
+
+      .preview-card-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 10px;
+      }
+
+      .preview-business-card {
+        width: 91mm;
+        height: 55mm;
+        background: white;
+        border-radius: 4px;
+        padding: 2.5mm 5mm;
+        color: #333;
+        position: relative;
+        overflow: hidden;
+        font-family: "Arial", sans-serif;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        transform: scale(0.8);
+        transition: all 0.3s ease;
+      }
+
+      .preview-empty-card {
+        background: #f8f9fa;
+        border: 2px dashed #ccc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #aaa;
+        font-size: 12px;
+        text-align: center;
+        line-height: 1.4;
+        padding: 5mm;
+      }
+
+      .a4-container {
+        width: 100%;
+        background: white;
+        transform-origin: top center;
+        flex-shrink: 1;
+        transform: scale(0.6);
+        margin: 0 auto;
+      }
+
+      .a4-title {
+        text-align: center;
+        color: #333;
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 20px;
+      }
+
+      .card-grid {
+        position: absolute;
+        top: 10mm;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 184mm;
+        height: 277mm;
+        display: grid;
+        grid-template-columns: 92mm 92mm;
+        grid-template-rows: repeat(5, 55mm);
+      }
+
+      .card-slot {
+        position: relative;
+        width: 92mm;
+        height: 55mm;
+        border: 1px dashed #e9bb51;
+      }
+
+      /* A4グリッド内の名刺は背景を透明に（点線を表示するため） */
+      #cardGrid .business-card {
+        background: transparent !important;
+      }
+
+      .business-card {
+        width: 91mm;
+        height: 55mm;
+        background: rgba(255, 255, 255, 0);
+        border-radius: 2mm;
+        padding: 2.5mm 5mm;
+        color: #333;
+        position: relative;
+        overflow: hidden;
+        font-family: "Arial", sans-serif;
+      }
+
+      /* 名刺サイズ出力用の大きめ表示 */
+      .business-card-large {
+        width: 400px;
+        height: 240px;
+        background: rgba(255, 255, 255, 0);
+        border-radius: 8px;
+        padding: 10px 20px;
+        color: #333;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        position: relative;
+        overflow: hidden;
+      }
+
+      /* PDF生成用の固定サイズクラス */
+      .business-card.pdf-generation {
+        width: 400px !important;
+        height: 240px !important;
+        transform: none !important;
+        box-shadow: none !important;
+      }
+
+      .business-card.pdf-generation .company-name {
+        font-size: 18px !important;
+      }
+
+      .business-card.pdf-generation .card-position {
+        font-size: 12px !important;
+      }
+
+      .business-card.pdf-generation .card-grade {
+        font-size: 12px !important;
+      }
+
+      .business-card.pdf-generation .card-name {
+        font-size: 45px !important;
+        line-height: 1.1 !important;
+      }
+
+      .business-card.pdf-generation .card-reading {
+        font-size: 11px !important;
+      }
+
+      .business-card.pdf-generation .training-logo {
+        top: -10px !important;
+        right: -20px !important;
+        width: 100% !important;
+        z-index: -1 !important;
+      }
+
+      @media (max-width: 768px) {
+        .container-a4 {
+          grid-template-columns: 1fr;
+          width: 95%;
+        }
+        .container-card {
+          grid-template-columns: 1fr;
+          max-width: 500px;
+        }
+        .input-section {
+          padding: 20px;
+        }
+        .a4-container {
+          transform: scale(0.5);
+        }
+        .business-card-large {
+          width: 350px;
+          height: 210px;
+        }
+        .tab-button {
+          font-size: 14px;
+          padding: 15px 10px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!--header-->
+    <div id="header"></div>
+    <script>
+      fetch("Components/header.html")
+        .then((res) => res.text())
+        .then((html) => {
+          document.getElementById("header").innerHTML = html;
+        });
+    </script>
+    <!--header-->
+
+    <div class="tab-container">
+      <div class="tab-header">
+        <button class="tab-button active" onclick="switchTab('a4')">
+          A4サイズ出力（最大10人）
+        </button>
+        <button class="tab-button" onclick="switchTab('card')">
+          名刺サイズ出力（1人）
+        </button>
+      </div>
+
+      <!-- A4出力タブ -->
+      <div id="tab-a4" class="tab-content active">
+        <div class="container-a4">
+          <div class="input-section">
+            <h1 class="container-title">スタッフ証ジェネレーター</h1>
+
+            <div class="current-person">
+              人数: <span id="personCount">0</span>/10
+            </div>
+
+            <form id="cardFormA4">
+              <div class="checkbox-group">
+                <input type="checkbox" id="trainingModeA4" />
+                <label for="trainingModeA4">研修中マークを表示</label>
+              </div>
+
+              <div class="form-group">
+                <label for="nameA4">名前</label>
+                <input type="text" id="nameA4" placeholder="例：山田 太郎" />
+              </div>
+
+              <div class="form-group">
+                <label for="readingA4">読み仮名</label>
+                <input
+                  type="text"
+                  id="readingA4"
+                  placeholder="例：Tarou Yamada"
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="positionA4">役職</label>
+                <input type="text" id="positionA4" placeholder="例：局長" />
+              </div>
+
+              <div class="form-group">
+                <label for="gradeA4">学年・学科</label>
+                <input
+                  type="text"
+                  id="gradeA4"
+                  placeholder="例：4年生自動車科"
+                />
+              </div>
+
+              <button type="button" class="add-btn" onclick="addPerson()">
+                スタッフを追加
+              </button>
+
+              <button type="button" class="reset-btn" onclick="resetAll()">
+                すべてリセット
+              </button>
+
+              <button
+                type="button"
+                class="download-btn"
+                onclick="downloadA4PDF()"
+              >
+                A4でPDFダウンロード
+              </button>
+            </form>
+          </div>
+
+          <div class="live-preview">
+            <h3>入力データ プレビュー</h3>
+            <div class="preview-card-container">
+              <div
+                class="preview-business-card preview-empty-card"
+                id="livePreviewCardA4"
+              >
+                情報を入力すると<br />リアルタイムで<br />プレビューが表示されます
+              </div>
+            </div>
+            <div class="person-list" id="personList" style="display: none">
+              <h3 style="margin-bottom: 10px; color: #333">登録済みスタッフ</h3>
+              <div id="personItems"></div>
+            </div>
+          </div>
+
+          <div class="preview-section">
+            <div class="a4-title">A4印刷プレビュー</div>
+            <div class="a4-container" id="a4Container">
+              <div class="card-grid" id="cardGrid"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 名刺サイズ出力タブ -->
+      <div id="tab-card" class="tab-content">
+        <div class="container-card">
+          <div class="input-section">
+            <h1 class="container-title">スタッフ証ジェネレーター</h1>
+            <form id="cardFormCard">
+              <div class="checkbox-group">
+                <input type="checkbox" id="trainingModeCard" />
+                <label for="trainingModeCard">研修中マークを表示</label>
+              </div>
+
+              <div class="form-group">
+                <label for="nameCard">名前</label>
+                <input type="text" id="nameCard" placeholder="例：山田 太郎" />
+              </div>
+
+              <div class="form-group">
+                <label for="readingCard">読み仮名</label>
+                <input
+                  type="text"
+                  id="readingCard"
+                  placeholder="例：Tarou Yamada"
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="positionCard">役職</label>
+                <input type="text" id="positionCard" placeholder="例：局長" />
+              </div>
+
+              <div class="form-group">
+                <label for="gradeCard">学年・学科</label>
+                <input
+                  type="text"
+                  id="gradeCard"
+                  placeholder="例：4年生自動車科"
+                />
+              </div>
+
+              <button type="button" class="reset-btn" onclick="resetFormCard()">
+                入力をリセット
+              </button>
+
+              <button
+                type="button"
+                class="download-btn"
+                onclick="downloadCardAsPDF()"
+              >
+                名刺をPDFでダウンロード
+              </button>
+
+              <button
+                type="button"
+                class="download-btn"
+                onclick="downloadCardAsImage()"
+                style="background: linear-gradient(135deg, #28a745, #20c997)"
+              >
+                名刺を画像でダウンロード
+              </button>
+            </form>
+          </div>
+
+          <div class="preview-section-card">
+            <div class="business-card-large" id="businessCard">
+              <div class="card-content">
+                <div class="company-name">KBS 旭工放送局</div>
+                <div class="card-main">
+                  <div class="card-position" id="previewPosition">局長</div>
+                  <div class="card-grade" id="previewGrade">4年自動車科</div>
+                  <div class="card-name" id="previewName">山田 太郎</div>
+                  <div class="card-reading" id="previewReading">
+                    Tarou Yamada
+                  </div>
+                </div>
+                <img class="card-logo" src="img/logo.png" />
+                <img
+                  class="training-logo"
+                  id="trainingLogo"
+                  src="img/training.png"
+                  alt="研修中"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // タブ切り替え機能
+      function switchTab(tabName) {
+        document.querySelectorAll(".tab-content").forEach((tab) => {
+          tab.classList.remove("active");
+        });
+
+        document.querySelectorAll(".tab-button").forEach((btn) => {
+          btn.classList.remove("active");
+        });
+
+        document.getElementById(`tab-${tabName}`).classList.add("active");
+        event.target.classList.add("active");
+      }
+
+      // A4出力用のコード
+      let staffList = [];
+
+      function initA4() {
+        generateCardSlots();
+        updateDisplay();
+        setupInputListenersA4();
+      }
+
+      function setupInputListenersA4() {
+        const inputs = ["nameA4", "readingA4", "positionA4", "gradeA4"];
+        inputs.forEach((id) => {
+          document
+            .getElementById(id)
+            .addEventListener("input", updateLivePreviewA4);
+        });
+
+        document
+          .getElementById("trainingModeA4")
+          .addEventListener("change", updateLivePreviewA4);
+      }
+
+      function updateLivePreviewA4() {
+        const name = document.getElementById("nameA4").value.trim();
+        const reading = document.getElementById("readingA4").value.trim();
+        const position = document.getElementById("positionA4").value.trim();
+        const grade = document.getElementById("gradeA4").value.trim();
+        const isTraining = document.getElementById("trainingModeA4").checked;
+
+        const previewCard = document.getElementById("livePreviewCardA4");
+
+        if (!name && !reading && !position && !grade) {
+          previewCard.className = "preview-business-card preview-empty-card";
+          previewCard.innerHTML =
+            "情報を入力すると<br>リアルタイムで<br>プレビューが表示されます";
+          return;
+        }
+
+        previewCard.className = "preview-business-card";
+        previewCard.innerHTML = `
+          <div class="preview-card-content">
+            <div class="preview-company-name">KBS 旭工放送局</div>
+            <div class="preview-card-main">
+              <div class="preview-card-position">${
+                position || "役職未入力"
+              }</div>
+              <div class="preview-card-grade">${
+                grade || "学年・学科未入力"
+              }</div>
+              <div class="preview-card-name">${name || "名前未入力"}</div>
+              <div class="preview-card-reading">${
+                reading || "読み仮名未入力"
+              }</div>
+            </div>
+            <img class="preview-card-logo" src="img/logo.png" />
+            <img class="preview-training-logo ${
+              isTraining ? "visible" : ""
+            }" src="img/training.png" alt="研修中" />
+          </div>
+        `;
+      }
+
+      function generateCardSlots() {
+        const cardGrid = document.getElementById("cardGrid");
+        cardGrid.innerHTML = "";
+
+        for (let i = 0; i < 10; i++) {
+          const slot = document.createElement("div");
+          slot.className = "card-slot";
+          slot.id = `slot-${i}`;
+          cardGrid.appendChild(slot);
+        }
+      }
+
+      function addPerson() {
+        if (staffList.length >= 10) {
+          alert("最大10人まで登録できます。");
+          return;
+        }
+
+        const name = document.getElementById("nameA4").value.trim();
+        const reading = document.getElementById("readingA4").value.trim();
+        const position = document.getElementById("positionA4").value.trim();
+        const grade = document.getElementById("gradeA4").value.trim();
+        const isTraining = document.getElementById("trainingModeA4").checked;
+
+        if (!name || !reading || !position || !grade) {
+          alert("すべての項目を入力してください。");
+          return;
+        }
+
+        const staff = {
+          id: Date.now(),
+          name: name,
+          reading: reading,
+          position: position,
+          grade: grade,
+          isTraining: isTraining,
+        };
+
+        staffList.push(staff);
+        updateDisplay();
+        updateLivePreviewA4();
+      }
+
+      function deletePerson(id) {
+        staffList = staffList.filter((staff) => staff.id !== id);
+        updateDisplay();
+      }
+
+      function clearFormA4() {
+        document.getElementById("nameA4").value = "";
+        document.getElementById("readingA4").value = "";
+        document.getElementById("positionA4").value = "";
+        document.getElementById("gradeA4").value = "";
+        document.getElementById("trainingModeA4").checked = false;
+      }
+
+      function resetAll() {
+        staffList = [];
+        clearFormA4();
+        updateDisplay();
+        updateLivePreviewA4();
+      }
+
+      function updateDisplay() {
+        updatePersonCount();
+        updatePersonList();
+        updateCardGrid();
+      }
+
+      function updatePersonCount() {
+        document.getElementById("personCount").textContent = staffList.length;
+      }
+
+      function updatePersonList() {
+        const personList = document.getElementById("personList");
+        const personItems = document.getElementById("personItems");
+
+        if (staffList.length === 0) {
+          personList.style.display = "none";
+          return;
+        }
+
+        personList.style.display = "block";
+        personItems.innerHTML = "";
+
+        staffList.forEach((staff) => {
+          const item = document.createElement("div");
+          item.className = "person-item";
+          item.innerHTML = `
+            <div>
+              <div class="person-name">
+                ${staff.name}
+                ${
+                  staff.isTraining
+                    ? '<span class="training-badge">研修中</span>'
+                    : ""
+                }
+              </div>
+              <div class="person-details">${staff.position} - ${
+            staff.grade
+          }</div>
+            </div>
+            <button class="delete-btn" onclick="deletePerson(${
+              staff.id
+            })">削除</button>
+          `;
+          personItems.appendChild(item);
+        });
+      }
+
+      function updateCardGrid() {
+        for (let i = 0; i < 10; i++) {
+          const slot = document.getElementById(`slot-${i}`);
+
+          if (i < staffList.length) {
+            const staff = staffList[i];
+            slot.innerHTML = createBusinessCard(staff);
+          } else {
+            slot.innerHTML = "";
+          }
+        }
+      }
+
+      function createBusinessCard(staff) {
+        return `
+          <div class="business-card">
+            <div class="card-content">
+              <div class="company-name">KBS 旭工放送局</div>
+              <div class="card-main">
+                <div class="card-position">${staff.position}</div>
+                <div class="card-grade">${staff.grade}</div>
+                <div class="card-name">${staff.name}</div>
+                <div class="card-reading">${staff.reading}</div>
+              </div>
+              <img class="card-logo" src="img/logo.png" />
+              <img class="training-logo ${
+                staff.isTraining ? "visible" : ""
+              }" src="img/training.png" alt="研修中" />
+            </div>
+          </div>
+        `;
+      }
+
+      function downloadA4PDF() {
+        if (staffList.length === 0) {
+          alert("スタッフを追加してからPDFをダウンロードしてください。");
+          return;
+        }
+
+        const pdfContainer = document.createElement("div");
+        pdfContainer.style.cssText = `
+          position: fixed;
+          top: -9999px;
+          left: -9999px;
+          width: 210mm;
+          height: 297mm;
+          background: white;
+          font-family: Arial, sans-serif;
+        `;
+
+        const pdfCardGrid = document.createElement("div");
+        pdfCardGrid.style.cssText = `
+          position: absolute;
+          top: 10mm;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 184mm;
+          height: 277mm;
+          display: grid;
+          grid-template-columns: 92mm 92mm;
+          grid-template-rows: repeat(5, 55mm);
+          grid-gap: 0;
+        `;
+
+        for (let i = 0; i < 10; i++) {
+          const cardSlot = document.createElement("div");
+          cardSlot.style.cssText = `
+            position: relative;
+            width: 92mm;
+            height: 55mm;
+            border: 1px dashed #e9bb51;
+          `;
+
+          if (i % 2 === 1) {
+            cardSlot.style.borderLeft = "none";
+          }
+          if (i >= 2) {
+            cardSlot.style.borderTop = "none";
+          }
+
+          if (i < staffList.length) {
+            const staff = staffList[i];
+            cardSlot.innerHTML = createBusinessCard(staff);
+          }
+
+          pdfCardGrid.appendChild(cardSlot);
+        }
+
+        pdfContainer.appendChild(pdfCardGrid);
+        document.body.appendChild(pdfContainer);
+
+        const imagesToLoad = [];
+        const trainingLogos = pdfContainer.querySelectorAll(
+          ".training-logo.visible"
+        );
+        const cardLogos = pdfContainer.querySelectorAll(".card-logo");
+
+        trainingLogos.forEach((logo) => {
+          if (!logo.complete) {
+            imagesToLoad.push(
+              new Promise((resolve) => {
+                logo.onload = resolve;
+                logo.onerror = resolve;
+              })
+            );
+          }
+        });
+
+        cardLogos.forEach((logo) => {
+          if (!logo.complete) {
+            imagesToLoad.push(
+              new Promise((resolve) => {
+                logo.onload = resolve;
+                logo.onerror = resolve;
+              })
+            );
+          }
+        });
+
+        Promise.all(imagesToLoad).then(() => {
+          setTimeout(() => {
+            html2canvas(pdfContainer, {
+              backgroundColor: "white",
+              scale: 2,
+              useCORS: true,
+              allowTaint: false,
+              width: 794,
+              height: 1123,
+              logging: false,
+            })
+              .then(function (canvas) {
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF({
+                  orientation: "portrait",
+                  unit: "mm",
+                  format: "a4",
+                });
+
+                const imgData = canvas.toDataURL("image/png", 1.0);
+                pdf.addImage(imgData, "PNG", 0, 0, 210, 297);
+
+                const filename = `staff-cards-${
+                  new Date().toISOString().split("T")[0]
+                }.pdf`;
+                pdf.save(filename);
+
+                document.body.removeChild(pdfContainer);
+              })
+              .catch(function (error) {
+                console.error("PDF生成エラー:", error);
+                alert("PDFの生成に失敗しました。再度お試しください。");
+
+                if (document.body.contains(pdfContainer)) {
+                  document.body.removeChild(pdfContainer);
+                }
+              });
+          }, 300);
+        });
+      }
+
+      // 名刺サイズ出力用のコード
+      function initCard() {
+        updatePreviewCard();
+        setupInputListenersCard();
+      }
+
+      function setupInputListenersCard() {
+        document
+          .getElementById("nameCard")
+          .addEventListener("input", updatePreviewCard);
+        document
+          .getElementById("readingCard")
+          .addEventListener("input", updatePreviewCard);
+        document
+          .getElementById("positionCard")
+          .addEventListener("input", updatePreviewCard);
+        document
+          .getElementById("gradeCard")
+          .addEventListener("input", updatePreviewCard);
+        document
+          .getElementById("trainingModeCard")
+          .addEventListener("change", toggleTrainingLogo);
+      }
+
+      function updatePreviewCard() {
+        const name = document.getElementById("nameCard").value || "山田 太郎";
+        const reading =
+          document.getElementById("readingCard").value || "Tarou Yamada";
+        const position =
+          document.getElementById("positionCard").value || "局長";
+        const grade =
+          document.getElementById("gradeCard").value || "4年自動車科";
+
+        document.getElementById("previewName").textContent = name;
+        document.getElementById("previewReading").textContent = reading;
+        document.getElementById("previewPosition").textContent = position;
+        document.getElementById("previewGrade").textContent = grade;
+      }
+
+      function toggleTrainingLogo() {
+        const trainingMode =
+          document.getElementById("trainingModeCard").checked;
+        const trainingLogo = document.getElementById("trainingLogo");
+
+        if (trainingMode) {
+          trainingLogo.classList.add("visible");
+        } else {
+          trainingLogo.classList.remove("visible");
+        }
+      }
+
+      function resetFormCard() {
+        document.getElementById("nameCard").value = "";
+        document.getElementById("readingCard").value = "";
+        document.getElementById("positionCard").value = "";
+        document.getElementById("gradeCard").value = "";
+        document.getElementById("trainingModeCard").checked = false;
+        updatePreviewCard();
+        toggleTrainingLogo();
+      }
+
+      function renderCardForExport(callback) {
+        const businessCard = document.getElementById("businessCard");
+        businessCard.classList.add("pdf-generation");
+
+        setTimeout(() => {
+          callback(businessCard);
+        }, 100);
+      }
+
+      function downloadCardAsImage() {
+        renderCardForExport((businessCard) => {
+          const trainingLogo = document.getElementById("trainingLogo");
+          const cardLogo = businessCard.querySelector(".card-logo");
+          const imagesToLoad = [];
+
+          if (trainingLogo.classList.contains("visible")) {
+            if (!trainingLogo.complete) {
+              imagesToLoad.push(
+                new Promise((resolve) => {
+                  trainingLogo.onload = resolve;
+                  trainingLogo.onerror = resolve;
+                })
+              );
+            }
+          }
+
+          if (!cardLogo.complete) {
+            imagesToLoad.push(
+              new Promise((resolve) => {
+                cardLogo.onload = resolve;
+                cardLogo.onerror = resolve;
+              })
+            );
+          }
+
+          Promise.all(imagesToLoad).then(() => {
+            setTimeout(() => {
+              html2canvas(businessCard, {
+                backgroundColor: "white",
+                scale: 3,
+                useCORS: true,
+                allowTaint: false,
+                width: 400,
+                height: 240,
+                windowWidth: 1200,
+                windowHeight: 800,
+                logging: false,
+              })
+                .then(function (canvas) {
+                  businessCard.classList.remove("pdf-generation");
+
+                  canvas.toBlob(function (blob) {
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = "staff-card.png";
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                  });
+                })
+                .catch(function (error) {
+                  businessCard.classList.remove("pdf-generation");
+                  console.error("画像生成エラー:", error);
+                  alert("画像の生成に失敗しました。再度お試しください。");
+                });
+            }, 200);
+          });
+        });
+      }
+
+      function downloadCardAsPDF() {
+        renderCardForExport((businessCard) => {
+          const trainingLogo = document.getElementById("trainingLogo");
+          const cardLogo = businessCard.querySelector(".card-logo");
+          const imagesToLoad = [];
+
+          if (trainingLogo.classList.contains("visible")) {
+            if (!trainingLogo.complete) {
+              imagesToLoad.push(
+                new Promise((resolve) => {
+                  trainingLogo.onload = resolve;
+                  trainingLogo.onerror = resolve;
+                })
+              );
+            }
+          }
+
+          if (!cardLogo.complete) {
+            imagesToLoad.push(
+              new Promise((resolve) => {
+                cardLogo.onload = resolve;
+                cardLogo.onerror = resolve;
+              })
+            );
+          }
+
+          Promise.all(imagesToLoad).then(() => {
+            setTimeout(() => {
+              html2canvas(businessCard, {
+                backgroundColor: "white",
+                scale: 4,
+                useCORS: true,
+                allowTaint: false,
+                width: 400,
+                height: 240,
+                windowWidth: 1200,
+                windowHeight: 800,
+                logging: false,
+              })
+                .then(function (canvas) {
+                  businessCard.classList.remove("pdf-generation");
+
+                  const { jsPDF } = window.jspdf;
+                  const cardWidthMM = 91;
+                  const cardHeightMM = 55;
+
+                  const pdf = new jsPDF({
+                    orientation: "landscape",
+                    unit: "mm",
+                    format: [cardWidthMM, cardHeightMM],
+                  });
+
+                  const imgData = canvas.toDataURL("image/png", 1.0);
+                  pdf.addImage(imgData, "PNG", 0, 0, cardWidthMM, cardHeightMM);
+
+                  pdf.save("staff-card.pdf");
+                })
+                .catch(function (error) {
+                  businessCard.classList.remove("pdf-generation");
+                  console.error("PDF生成エラー:", error);
+                  alert("PDFの生成に失敗しました。再度お試しください。");
+                });
+            }, 200);
+          });
+        });
+      }
+
+      // 初期化
+      window.addEventListener("DOMContentLoaded", () => {
+        initA4();
+        initCard();
+      });
+    </script>
+
+    <!--footer-->
+    <div id="footer"></div>
+    <script>
+      fetch("Components/footer.html")
+        .then((res) => res.text())
+        .then((html) => {
+          document.getElementById("footer").innerHTML = html;
+        });
+    </script>
+    <!--footer-->
+  </body>
+</html>
