@@ -241,10 +241,12 @@
         }
 
         .step-card img {
-            margin-top: 15px;
+            display: flex;
+            
             border-radius: 8px;
             border: solid 1px #ccc;
-            position: relative;
+            width: 80%;
+            margin: 15px auto 0 auto;
         }
 
 
@@ -397,7 +399,35 @@
 
             <!-- Browser -->
             <div class="security-subtitle">
-                ② Viewerアクセス時のブラウザ警告
+                ② Windowsセキュリティ によるネットワークアクセスの許諾
+            </div>
+
+            <div class="steps">
+                <div class="step-card">
+                    <div class="step-num">STEP 1</div>
+                    <h3>アクセス許諾</h3>
+                    <p>
+                        アプリ起動時に<br>
+                        「ネットワークにアプリへのアクセスを許可しますか？」<br>
+                        と表示されます。<br>
+                    </p>
+                    <img src="img/node.png" alt="ブラウザ警告">
+                </div>
+
+                <div class="step-card">
+                    <div class="step-num">STEP 2</div>
+                    <h3>アクセスを許可</h3>
+                    <p>
+                        「許可」を選択してください。<br>
+                        ※許可しないとLAN内での接続ができません。
+                    </p>
+                    <img src="img/node2.png" alt="保存許可">
+                </div>
+            </div>
+
+            <!-- Browser -->
+            <div class="security-subtitle">
+                ③ Viewerアクセス時のブラウザ警告
             </div>
 
             <div class="steps">
