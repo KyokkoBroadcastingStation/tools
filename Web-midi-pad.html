@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex" />
+    <link rel="stylesheet" href="style/main-style.css" />
+    <!-- ogp -->
+    <meta property="og:type" content="website" />
+    <meta
+      property="og:title"
+      content="Web-Midi-Pad 丨 KBS情報通信ネットワーク"
+    />
+    <meta
+      property="og:site_name"
+      content="KBS 北海道旭川工業高等学校 放送局 情報通信ネットワーク"
+    />
+    <meta
+      property="og:description"
+      content="効果音、BGMをいつでもどこでもポン出しできる！"
+    />
+    <title>Web-Midi-Pad 丨 KBS情報通信ネットワーク</title>
+  </head>
+  <body>
+    <!--header-->
+    <div id="header"></div>
+    <script>
+      fetch("Components/header.html")
+        .then((res) => res.text())
+        .then((html) => {
+          document.getElementById("header").innerHTML = html;
+        });
+    </script>
+    <!--header-->
+    <div class="midi-pad">
+      <h3 class="midi-pad-title">Web MIDI Pad</h3>
+
+      <!-- Settings Panel -->
+      <div class="settings-panel">
+        <div class="setting-group">
+          <label for="gridSizeSelector">グリッドサイズ:</label>
+          <select id="gridSizeSelector" class="controls_item">
+            <option value="1">1×1</option>
+            <option value="2">2×2</option>
+            <option value="3">3×3</option>
+            <option value="4" selected>4×4</option>
+            <option value="5">5×5</option>
+            <option value="6">6×6</option>
+            <option value="7">7×7</option>
+            <option value="8">8×8</option>
+          </select>
+        </div>
+
+        <div class="setting-group">
+          <label>パッドカラー:</label>
+          <div class="color-picker-group">
+            <input
+              type="color"
+              id="color1"
+              name="color1"
+              value="#FF3333"
+              title="グラデーション開始色"
+            />
+            <input
+              type="color"
+              id="color2"
+              name="color2"
+              value="#973B3B"
+              title="グラデーション終了色"
+            />
+          </div>
+        </div>
+
+        <div class="setting-group">
+          <label for="fileInput" class="file-input-label">
+            <span>📁 ファイルを選択</span>
+            <input
+              type="file"
+              id="fileInput"
+              multiple
+              accept=".mp3, .wav, .ogg"
+            />
+          </label>
+        </div>
+      </div>
+
+      <!-- Pad Container -->
+      <div class="pad-container" id="padContainer">
+        <!-- Pad buttons will be generated here -->
+      </div>
+
+      <!-- Controls -->
+      <div class="controls">
+        <div class="control-group">
+          <button class="control-btn" id="stopButton" title="停止 (Space)">
+            ⏹ 停止
+          </button>
+          <button class="control-btn" id="resetButton" title="リセット">
+            🔄 リセット
+          </button>
+          <button class="control-btn" id="loopButton" title="ループ切替 (L)">
+            🔁 ループ: オフ
+          </button>
+        </div>
+
+        <div class="control-group volume-control">
+          <button
+            class="control-btn icon-btn"
+            id="muteButton"
+            title="ミュート (M)"
+          >
+            🔊
+          </button>
+          <input
+            type="range"
+            id="volumeSlider"
+            min="0"
+            max="100"
+            step="1"
+            value="100"
+          />
+          <span id="volumeLabel">100%</span>
+        </div>
+      </div>
+
+      <!-- Keyboard Hints -->
+      <div class="keyboard-hints">
+        <span
+          >キーボード: 1-9でパッド再生 | Space: 停止 | L: ループ | M:
+          ミュート</span
+        >
+      </div>
+    </div>
+
+    <style>
+      * {
+          box-sizing: border-box;
+      }
+
+      body {
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          min-height: 100vh;
+          margin: 0;
+          padding: 20px;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      }
+
+      .midi-pad-title {
+          text-align: center;
+          margin: 0 0 20px 0;
+          padding: 0;
+          color: #333;
+          font-size: 24px;
+          font-weight: 600;
+      }
+
+      .midi-pad {
+          background-color: #fff;
+          padding: 30px;
+          border-radius: 20px;
+          box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+          max-width: 1200px;
+          width: 100%;
+      }
+
+      /* Settings Panel */
+      .settings-panel {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 20px;
+          margin-bottom: 20px;
+          padding: 15px;
+          background-color: #f8f9fa;
+          border-radius: 10px;
+      }
+
+      .setting-group {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+      }
+
+      .setting-group label {
+          font-weight: 500;
+          color: #555;
+          font-size: 14px;
+      }
+
+      .color-picker-group {
+          display: flex;
+          gap: 10px;
+      }
+
+      input[type="color"] {
+          width: 50px;
+          height: 35px;
+          border: 2px solid #ddd;
+          border-radius: 5px;
+          cursor: pointer;
+          transition: border-color 0.3s;
+      }
+
+      input[type="color"]:hover {
+          border-color: #667eea;
+      }
+
+      .file-input-label {
+          display: inline-block;
+          padding: 8px 16px;
+          background-color: #667eea;
+          color: white;
+          border-radius: 5px;
+          cursor: pointer;
+          transition: background-color 0.3s;
+          font-weight: 500;
+      }
+
+      .file-input-label:hover {
+          background-color: #5568d3;
+      }
+
+      .file-input-label input[type="file"] {
+          display: none;
+      }
+
+      select {
+          padding: 8px 12px;
+          border: 2px solid #ddd;
+          border-radius: 5px;
+          background-color: white;
+          cursor: pointer;
+          font-size: 14px;
+          transition: border-color 0.3s;
+      }
+
+      select:hover, select:focus {
+          border-color: #667eea;
+          outline: none;
+      }
+
+      /* Pad Container */
+      .pad-container {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 10px;
+          margin-bottom: 20px;
+          min-height: 300px;
+      }
+
+      .pad-button {
+          cursor: pointer;
+          aspect-ratio: 1;
+          min-height: 80px;
+          border: 2px solid #ddd;
+          border-radius: 10px;
+          transition: all 0.2s ease;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          position: relative;
+          background: linear-gradient(135deg, #e0e0e0 0%, #f5f5f5 100%);
+          overflow: hidden;
+          font-weight: 600;
+          color: #333;
+      }
+
+      .pad-button:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+          border-color: #667eea;
+      }
+
+      .pad-button.assigned {
+          background: radial-gradient(circle, #FF3333, #973B3B);
+          color: white;
+          border-color: transparent;
+      }
+
+      .pad-button.playing-pad {
+          animation: pulse 0.5s ease-in-out infinite;
+          box-shadow: 0 0 20px rgba(0, 230, 118, 0.6);
+          border-color: #00e676;
+      }
+
+      @keyframes pulse {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.05); }
+      }
+
+      .pad-number {
+          position: absolute;
+          top: 5px;
+          left: 5px;
+          background-color: rgba(0, 0, 0, 0.3);
+          color: white;
+          border-radius: 50%;
+          width: 24px;
+          height: 24px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 12px;
+          font-weight: bold;
+      }
+
+      .file-name-label {
+          font-size: 11px;
+          overflow-wrap: break-word;
+          text-align: center;
+          padding: 5px;
+          max-width: 100%;
+          text-overflow: ellipsis;
+          display: -webkit-box;
+          -webkit-line-clamp: 3;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+      }
+
+      /* Controls */
+      .controls {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 15px;
+          align-items: center;
+          justify-content: space-between;
+          padding: 15px;
+          background-color: #f8f9fa;
+          border-radius: 10px;
+      }
+
+      .control-group {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+      }
+
+      .control-btn {
+          padding: 10px 20px;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
+          border: none;
+          border-radius: 8px;
+          cursor: pointer;
+          font-size: 14px;
+          font-weight: 500;
+          transition: all 0.3s;
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+
+      .control-btn:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      }
+
+      .control-btn:active {
+          transform: translateY(0);
+      }
+
+      .icon-btn {
+          padding: 10px 15px;
+          font-size: 18px;
+      }
+
+      .volume-control {
+          flex: 1;
+          max-width: 300px;
+      }
+
+      #volumeSlider {
+          flex: 1;
+          min-width: 100px;
+          height: 6px;
+          border-radius: 3px;
+          background: linear-gradient(to right, #ddd 0%, #667eea 100%);
+          outline: none;
+          cursor: pointer;
+      }
+
+      #volumeSlider::-webkit-slider-thumb {
+          -webkit-appearance: none;
+          appearance: none;
+          width: 18px;
+          height: 18px;
+          border-radius: 50%;
+          background: #667eea;
+          cursor: pointer;
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      }
+
+      #volumeSlider::-moz-range-thumb {
+          width: 18px;
+          height: 18px;
+          border-radius: 50%;
+          background: #667eea;
+          cursor: pointer;
+          border: none;
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      }
+
+      #volumeLabel {
+          min-width: 45px;
+          text-align: right;
+          font-weight: 600;
+          color: #555;
+      }
+
+      /* Keyboard Hints */
+      .keyboard-hints {
+          margin-top: 15px;
+          padding: 10px;
+          background-color: #f0f0f0;
+          border-radius: 5px;
+          text-align: center;
+          font-size: 12px;
+          color: #666;
+      }
+
+      /* Drag and Drop Overlay */
+      .drag-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background-color: rgba(102, 126, 234, 0.9);
+          display: none;
+          align-items: center;
+          justify-content: center;
+          z-index: 1000;
+          pointer-events: none;
+      }
+
+      .drag-overlay.active {
+          display: flex;
+      }
+
+      .drag-overlay-text {
+          color: white;
+          font-size: 32px;
+          font-weight: bold;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+          body {
+              padding: 10px;
+          }
+
+          .midi-pad {
+              padding: 15px;
+          }
+
+          .midi-pad-title {
+              font-size: 20px;
+          }
+
+          .settings-panel {
+              flex-direction: column;
+              gap: 15px;
+          }
+
+          .setting-group {
+              flex-direction: column;
+              align-items: flex-start;
+              width: 100%;
+          }
+
+          .controls {
+              flex-direction: column;
+          }
+
+          .control-group {
+              width: 100%;
+              justify-content: center;
+          }
+
+          .volume-control {
+              max-width: 100%;
+          }
+
+          .keyboard-hints {
+              font-size: 10px;
+          }
+      }
+
+      @media (max-width: 480px) {
+          .pad-container {
+              gap: 5px;
+          }
+
+          .pad-button {
+              min-height: 60px;
+          }
+
+          .file-name-label {
+              font-size: 9px;
+          }
+
+          .control-btn {
+              padding: 8px 16px;
+              font-size: 12px;
+          }
+      }
+    </style>
+
+    <script>
+      const fileInput = document.getElementById("fileInput");
+      const padContainer = document.querySelector(".pad-container");
+      const volumeSlider = document.getElementById("volumeSlider");
+      const volumeLabel = document.getElementById("volumeLabel");
+      const loopButton = document.getElementById("loopButton");
+      const muteButton = document.getElementById("muteButton");
+      const color1Input = document.getElementById("color1");
+      const color2Input = document.getElementById("color2");
+      const gridSizeSelector = document.getElementById("gridSizeSelector");
+      const stopButton = document.getElementById("stopButton");
+      const resetButton = document.getElementById("resetButton");
+
+      let audioData = []; // Store file and audio element pairs
+      let currentPlaying = null;
+      let isLooping = false;
+      let isMuted = false;
+      let gradientColor1 = "#FF3333";
+      let gradientColor2 = "#973B3B";
+
+      // Event Listeners
+      fileInput.addEventListener("change", handleFileChange);
+      volumeSlider.addEventListener("input", handleVolumeChange);
+      loopButton.addEventListener("click", toggleLoop);
+      muteButton.addEventListener("click", toggleMute);
+      color1Input.addEventListener("change", updatePadColors);
+      color2Input.addEventListener("change", updatePadColors);
+      gridSizeSelector.addEventListener("change", updateGridSize);
+      stopButton.addEventListener("click", stopCurrentSound);
+      resetButton.addEventListener("click", resetAll);
+
+      // Drag and Drop
+      let dragCounter = 0;
+      document.body.addEventListener("dragenter", handleDragEnter);
+      document.body.addEventListener("dragleave", handleDragLeave);
+      document.body.addEventListener("dragover", handleDragOver);
+      document.body.addEventListener("drop", handleDrop);
+
+      // Keyboard Controls
+      document.addEventListener("keydown", handleKeyPress);
+
+      // Initialize
+      function initializePadButtons(gridSize) {
+        padContainer.innerHTML = "";
+        padContainer.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
+        const totalButtons = gridSize * gridSize;
+
+        for (let i = 0; i < totalButtons; i++) {
+          const padButton = document.createElement("div");
+          padButton.classList.add("pad-button");
+          padButton.dataset.index = i;
+
+          // Add number indicator for keyboard shortcuts (1-9)
+          if (i < 9) {
+            const numberLabel = document.createElement("div");
+            numberLabel.classList.add("pad-number");
+            numberLabel.textContent = i + 1;
+            padButton.appendChild(numberLabel);
+          }
+
+          padContainer.appendChild(padButton);
+        }
+
+        // Reassign existing audio files to new grid
+        reassignAudioFiles();
+      }
+
+      function handleFileChange(event) {
+        const files = Array.from(event.target.files);
+        assignFilesToPads(files);
+      }
+
+      function assignFilesToPads(files) {
+        const padButtons = document.querySelectorAll(".pad-button");
+
+        files.forEach((file) => {
+          // Find first unassigned pad
+          for (let i = 0; i < padButtons.length; i++) {
+            const padButton = padButtons[i];
+            if (!audioData[i]) {
+              audioData[i] = {
+                file: file,
+                audio: null,
+              };
+              updatePadButton(padButton, i);
+              break;
+            }
+          }
+        });
+      }
+
+      function updatePadButton(padButton, index) {
+        const data = audioData[index];
+        if (!data) return;
+
+        padButton.classList.add("assigned");
+        padButton.style.background = `radial-gradient(circle, ${gradientColor1}, ${gradientColor2})`;
+
+        // Preserve number label if it exists
+        const existingNumber = padButton.querySelector(".pad-number");
+        padButton.innerHTML = "";
+        if (existingNumber) {
+          padButton.appendChild(existingNumber);
+        }
+
+        const fileLabel = document.createElement("div");
+        fileLabel.classList.add("file-name-label");
+        fileLabel.textContent = data.file.name;
+        fileLabel.title = data.file.name;
+        padButton.appendChild(fileLabel);
+
+        padButton.onclick = () => playSound(index);
+      }
+
+      function reassignAudioFiles() {
+        const padButtons = document.querySelectorAll(".pad-button");
+        audioData.forEach((data, index) => {
+          if (data && padButtons[index]) {
+            updatePadButton(padButtons[index], index);
+          }
+        });
+      }
+
+      function playSound(index) {
+        const data = audioData[index];
+        if (!data) return;
+
+        stopCurrentSound();
+
+        // Create audio element if it doesn't exist
+        if (!data.audio) {
+          data.audio = new Audio(URL.createObjectURL(data.file));
+          data.audio.addEventListener("ended", () => {
+            currentPlaying = null;
+            resetPlayingPads();
+
+            if (isLooping) {
+              playSound(index);
+            }
+          });
+        }
+
+        const audio = data.audio;
+        audio.currentTime = 0;
+        audio.volume = isMuted ? 0 : parseFloat(volumeSlider.value) / 100;
+        audio.play();
+        currentPlaying = { audio, index };
+
+        // Update UI
+        resetPlayingPads();
+        const padButtons = document.querySelectorAll(".pad-button");
+        if (padButtons[index]) {
+          padButtons[index].classList.add("playing-pad");
+        }
+      }
+
+      function stopCurrentSound() {
+        if (currentPlaying) {
+          currentPlaying.audio.pause();
+          currentPlaying.audio.currentTime = 0;
+          resetPlayingPads();
+          currentPlaying = null;
+        }
+      }
+
+      function resetPlayingPads() {
+        const playingPads = document.querySelectorAll(".playing-pad");
+        playingPads.forEach((pad) => pad.classList.remove("playing-pad"));
+      }
+
+      function handleVolumeChange() {
+        const volume = parseFloat(volumeSlider.value) / 100;
+        volumeLabel.textContent = `${Math.round(volumeSlider.value)}%`;
+
+        if (!isMuted) {
+          audioData.forEach((data) => {
+            if (data && data.audio) {
+              data.audio.volume = volume;
+            }
+          });
+        }
+      }
+
+      function toggleMute() {
+        isMuted = !isMuted;
+        muteButton.textContent = isMuted ? "🔇" : "🔊";
+
+        const volume = isMuted ? 0 : parseFloat(volumeSlider.value) / 100;
+        audioData.forEach((data) => {
+          if (data && data.audio) {
+            data.audio.volume = volume;
+          }
+        });
+      }
+
+      function toggleLoop() {
+        isLooping = !isLooping;
+        loopButton.textContent = isLooping
+          ? "🔁 ループ: オン"
+          : "🔁 ループ: オフ";
+      }
+
+      function updatePadColors() {
+        gradientColor1 = color1Input.value;
+        gradientColor2 = color2Input.value;
+
+        const padButtons = document.querySelectorAll(".pad-button.assigned");
+        padButtons.forEach((padButton) => {
+          padButton.style.background = `radial-gradient(circle, ${gradientColor1}, ${gradientColor2})`;
+        });
+      }
+
+      function updateGridSize() {
+        const gridSize = parseInt(gridSizeSelector.value);
+        initializePadButtons(gridSize);
+      }
+
+      function resetAll() {
+        stopCurrentSound();
+        audioData = [];
+        const gridSize = parseInt(gridSizeSelector.value);
+        initializePadButtons(gridSize);
+        fileInput.value = "";
+      }
+
+      // Drag and Drop Handlers
+      function handleDragEnter(e) {
+        e.preventDefault();
+        dragCounter++;
+        if (dragCounter === 1) {
+          showDragOverlay();
+        }
+      }
+
+      function handleDragLeave(e) {
+        e.preventDefault();
+        dragCounter--;
+        if (dragCounter === 0) {
+          hideDragOverlay();
+        }
+      }
+
+      function handleDragOver(e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = "copy";
+      }
+
+      function handleDrop(e) {
+        e.preventDefault();
+        dragCounter = 0;
+        hideDragOverlay();
+
+        const files = Array.from(e.dataTransfer.files).filter((file) =>
+          file.type.startsWith("audio/")
+        );
+
+        if (files.length > 0) {
+          assignFilesToPads(files);
+        }
+      }
+
+      function showDragOverlay() {
+        let overlay = document.querySelector(".drag-overlay");
+        if (!overlay) {
+          overlay = document.createElement("div");
+          overlay.className = "drag-overlay";
+          overlay.innerHTML =
+            '<div class="drag-overlay-text">📁 ファイルをドロップ</div>';
+          document.body.appendChild(overlay);
+        }
+        overlay.classList.add("active");
+      }
+
+      function hideDragOverlay() {
+        const overlay = document.querySelector(".drag-overlay");
+        if (overlay) {
+          overlay.classList.remove("active");
+        }
+      }
+
+      // Keyboard Controls
+      function handleKeyPress(e) {
+        // Prevent if typing in input field
+        if (e.target.tagName === "INPUT" || e.target.tagName === "SELECT") {
+          return;
+        }
+
+        // Number keys 1-9 to trigger pads
+        if (e.key >= "1" && e.key <= "9") {
+          const index = parseInt(e.key) - 1;
+          if (audioData[index]) {
+            playSound(index);
+          }
+          e.preventDefault();
+        }
+
+        // Space to stop
+        if (e.code === "Space") {
+          stopCurrentSound();
+          e.preventDefault();
+        }
+
+        // L to toggle loop
+        if (e.key.toLowerCase() === "l") {
+          toggleLoop();
+          e.preventDefault();
+        }
+
+        // M to toggle mute
+        if (e.key.toLowerCase() === "m") {
+          toggleMute();
+          e.preventDefault();
+        }
+      }
+
+      // Initialize with default grid size
+      initializePadButtons(4);
+    </script>
+
+    <!--footer-->
+    <div id="footer"></div>
+    <script>
+      fetch("Components/footer.html")
+        .then((res) => res.text())
+        .then((html) => {
+          document.getElementById("footer").innerHTML = html;
+        });
+    </script>
+    <!--footer-->
+  </body>
+</html>

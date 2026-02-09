@@ -1,93 +1,109 @@
 <!DOCTYPE html>
 <html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex" />
+    <link rel="stylesheet" href="style/main-style.css" />
+    <link rel="stylesheet" href="style/top-style.css" />
+    <!-- ogp -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="ツール一覧 丨 KBS情報通信ネットワーク" />
+    <meta
+      property="og:site_name"
+      content="KBS 北海道旭川工業高等学校 放送局 情報通信ネットワーク"
+    />
+    <meta
+      property="og:description"
+      content="業務の効率化を支援するツール一覧です。全てWebで動作するため、アプリのダウンロードは不要です。※一部ツールはPCのみの対応"
+    />
+    <title>ツール一覧 丨 KBS情報通信ネットワーク</title>
+  </head>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="robots" content="noindex">
-  <link rel="stylesheet" href="style/main-style.css" />
-  <link rel="stylesheet" href="style/top-style.css" />
-  <!-- ogp -->
-  <meta property="og:type" content="website" />
-  <meta property="og:title" content="ツール一覧 丨 KBS情報通信ネットワーク" />
-  <meta property="og:site_name" content="KBS 北海道旭川工業高等学校 放送局 情報通信ネットワーク" />
-  <meta property="og:description" content="業務の効率化を支援するツール一覧です。全てWebで動作するため、アプリのダウンロードは不要です。※一部ツールはPCのみの対応" />
-  <title>ツール一覧 丨 KBS情報通信ネットワーク</title>
-</head>
+  <body>
+    <!--header-->
+    <div id="header"></div>
+    <script>
+      fetch("Components/header.html")
+        .then((res) => res.text())
+        .then((html) => {
+          document.getElementById("header").innerHTML = html;
+        });
+    </script>
+    <!--header-->
 
-<body>
-  <!--header-->
-  <div id="header"></div>
-  <script>
-    fetch("Components/header.html")
-      .then((res) => res.text())
-      .then((html) => {
-        document.getElementById("header").innerHTML = html;
-      });
-  </script>
-  <!--header-->
+    <main>
+      <h1 class="title">ツール一覧</h1>
 
-  <main>
-    <h1 class="title">ツール一覧</h1>
+      <ul>
+        <li>
+          <a href="digital-clock.html">
+            <img src="img/digital-clock.png" />
+            <h3>デジタル時計</h3>
+            <p>行事などの業務で最適なデジタル時計です。</p>
+            <p style="font-size: 0.8rem">
+              ※スマートフォンの場合はホーム画面に追加してから使用すると全画面表示になります。
+            </p>
+          </a>
+        </li>
 
-    <ul>
-      <li>
-        <a href="digital-clock.html">
-          <img src="img/digital-clock.png" />
-          <h3>デジタル時計</h3>
-          <p>行事などの業務で最適なデジタル時計です。</p>
-          <p style="font-size: 0.8rem">
-            ※スマートフォンの場合はホーム画面に追加してから使用すると全画面表示になります。
-          </p>
-        </a>
-      </li>
+        <li>
+          <a href="SNS-image.html">
+            <img src="img/SNS-image.png" />
+            <h3>SNS用画像加工ツール</h3>
+            <p>個人情報を守ろう。<br />モザイク、著作権表記を画像に追加。</p>
+          </a>
+        </li>
 
-      <li>
-        <a href="SNS-image.html">
-          <img src="img/SNS-image.png" />
-          <h3>SNS用画像加工ツール</h3>
-          <p>個人情報を守ろう。<br />モザイク、著作権表記を画像に追加。</p>
-        </a>
-      </li>
+        <li>
+          <a href="staff-card-generator.html">
+            <img src="img/staff-card-generator.png" />
+            <h3>スタッフ証ジェネレーター</h3>
+            <p>
+              あなたは誰？身分を明かそう。<br />A4サイズ出力、名刺サイズ出力に対応。
+            </p>
+          </a>
+        </li>
 
-      <li>
-        <a href="staff-card-generator.html">
-          <img src="img/staff-card-generator.png" />
-          <h3>スタッフ証ジェネレーター</h3>
-          <p>
-            あなたは誰？身分を明かそう。<br />A4サイズ出力、名刺サイズ出力に対応。
-          </p>
-        </a>
-      </li>
+        <li>
+          <a href="business-card-generator.html">
+            <img src="img/business-card-generator.png" />
+            <h3>名刺ジェネレーター</h3>
+            <p>簡単、名刺作成。<br />A4サイズ出力、名刺サイズ出力に対応。</p>
+          </a>
+        </li>
 
-      <li>
-        <a href="business-card-generator.html">
-          <img src="img/business-card-generator.png" />
-          <h3>名刺ジェネレーター</h3>
-          <p>簡単、名刺作成。<br />A4サイズ出力、名刺サイズ出力に対応。</p>
-        </a>
-      </li>
+        <li>
+          <a href="seelan.html">
+            <img src="img/camera-share.png" />
+            <h3>SeeLAN - 使い方 & ダウンロード</h3>
+            <p>
+              同一LAN内でPCのWebカメラ映像をQRコードで簡単に共有できるアプリケーション。
+            </p>
+          </a>
+        </li>
 
-      <li>
-        <a href="seelan.html">
-          <img src="img/camera-share.png" />
-          <h3>SeeLAN - 使い方 & ダウンロード</h3>
-          <p>同一LAN内でPCのWebカメラ映像をQRコードで簡単に共有できるアプリケーション。</p>
-        </a>
-      </li>
-    </ul>
-  </main>
+        <li>
+          <a href="Web-midi-pad.html">
+            <img src="img/camera-share.png" />
+            <h3>Web-Midi-Pad</h3>
+            <p>
+              好きな効果音、BGMをいつでもポン出ししよう！
+            </p>
+          </a>
+        </li>
+      </ul>
+    </main>
 
-  <!--footer-->
-  <div id="footer"></div>
-  <script>
-    fetch("Components/footer.html")
-      .then((res) => res.text())
-      .then((html) => {
-        document.getElementById("footer").innerHTML = html;
-      });
-  </script>
-  <!--footer-->
-</body>
-
+    <!--footer-->
+    <div id="footer"></div>
+    <script>
+      fetch("Components/footer.html")
+        .then((res) => res.text())
+        .then((html) => {
+          document.getElementById("footer").innerHTML = html;
+        });
+    </script>
+    <!--footer-->
+  </body>
 </html>
